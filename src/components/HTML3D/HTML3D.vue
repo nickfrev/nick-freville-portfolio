@@ -85,6 +85,14 @@ function addToCameraAng(
 	}
 }
 
+function setWorldScale(scale: number) {
+	transformBuffer.scale = scale;
+	transformBuffer.position.x *= scale;
+	transformBuffer.position.y *= scale;
+	// transformBuffer.position.z *= scale;
+	transformBufferChange = true;
+}
+
 function checkForCameraTransformChange() {
 	if (!camera.value) {
 		return;
@@ -99,6 +107,8 @@ function checkForCameraTransformChange() {
 		camera.value.transform.angle.pitch = transformBuffer.angle.pitch;
 		camera.value.transform.angle.yaw = transformBuffer.angle.yaw;
 		camera.value.transform.angle.roll = transformBuffer.angle.roll;
+
+		camera.value.setScale(transformBuffer.scale);
 	}
 }
 /////
@@ -123,9 +133,15 @@ let lastPos = { x: 0, y: 0 };
 function onMouseDown(event: MouseEvent) {
 	if (event.button == 2) {
 		mouseDown = true;
+
 		lastPos = { x: event.clientX, y: event.clientY };
 		event.stopPropagation();
 		event.preventDefault();
+
+		// Blur the active element so we are not typing in text boxes
+		if (document.activeElement && 'blur' in document.activeElement) {
+			(document.activeElement as HTMLElement).blur();
+		}
 	}
 }
 
@@ -168,9 +184,10 @@ let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
+let moveRun = false;
 
 function moveTick() {
-	const speed = 10;
+	const speed = 15 * (moveRun ? 3 : 1);
 	moveVector.y = moveForward ? speed : moveBackward ? -speed : 0;
 	moveVector.x = moveRight ? speed : moveLeft ? -speed : 0;
 	// Get the movement vectors
@@ -187,31 +204,35 @@ function moveTick() {
 
 function onKeyDown(event: KeyboardEvent) {
 	if (mouseDown) {
-		if (event.key == 'w') {
+		if (event.code == 'KeyW') {
 			moveForward = true;
-		} else if (event.key == 's') {
+		} else if (event.code == 'KeyS') {
 			moveBackward = true;
-		} else if (event.key == 'a') {
+		} else if (event.code == 'KeyA') {
 			moveLeft = true;
-		} else if (event.key == 'd') {
+		} else if (event.code == 'KeyD') {
 			moveRight = true;
+		} else if (event.code == 'ShiftLeft') {
+			moveRun = true;
 		}
 	}
 }
 
 function onKeyUp(event: KeyboardEvent) {
-	if (event.key == 'w') {
+	if (event.code == 'KeyW') {
 		moveForward = false;
-	} else if (event.key == 's') {
+	} else if (event.code == 'KeyS') {
 		moveBackward = false;
-	} else if (event.key == 'a') {
+	} else if (event.code == 'KeyA') {
 		moveLeft = false;
-	} else if (event.key == 'd') {
+	} else if (event.code == 'KeyD') {
 		moveRight = false;
+	} else if (event.code == 'ShiftLeft') {
+		moveRun = false;
 	}
 }
 
-defineExpose({ setCameraPos, setCameraAng, tick });
+defineExpose({ setCameraPos, setCameraAng, setWorldScale, tick });
 </script>
 
 <style scoped>

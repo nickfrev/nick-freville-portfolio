@@ -1,14 +1,28 @@
 <template>
 	<div class="camera" :style="objectStyle">
-		<slot></slot>
+		<Object3D ref="worldScale">
+			<slot></slot>
+		</Object3D>
 	</div>
 </template>
 
 <script setup lang="ts">
+import Object3D from './Object3D.vue';
 import { objectProps, becomeObject } from './ObjectComposable';
+import { useTemplateRef } from 'vue';
 const props = defineProps(objectProps);
 const { objectStyle, objectExposables } = becomeObject(props, true);
-defineExpose(objectExposables);
+
+// Allows for scaling the world
+const worldScale = useTemplateRef('worldScale');
+function setScale(value: number) {
+	if (worldScale.value) {
+		worldScale.value.transform.scale = value;
+		worldScale.value.update();
+	}
+}
+
+defineExpose({ ...objectExposables, setScale });
 </script>
 
 <style scoped>

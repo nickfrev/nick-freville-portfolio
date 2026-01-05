@@ -15,11 +15,8 @@ export function becomeObject(props: { transform: Transform }, isCamera: boolean 
 
 	function getCSS() {
 		if (isCamera) {
-			const perspective = 1400;
-			return (
-				`scale(0.5) perspective(${perspective}px) ` +
-				transform.value.getCameraTransformCSS(perspective)
-			);
+			const perspective = 800;
+			return `perspective(${perspective}px) ` + transform.value.getCameraTransformCSS(perspective);
 		}
 
 		return transform.value.getTransformCSS();

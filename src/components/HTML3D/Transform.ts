@@ -33,8 +33,8 @@ export class Position {
 		this.z = z;
 	}
 
-	getPositionCSS(offset: Position = new Position()) {
-		return `translate3d(${this.x + offset.x}px, ${-(this.y + offset.y)}px, ${this.z + offset.z}px) `;
+	getPositionCSS(offset: Position = new Position(), scale: number = 1) {
+		return `translate3d(${(this.x + offset.x) / scale}px, ${-(this.y + offset.y) / scale}px, ${(this.z + offset.z) / scale}px) `;
 	}
 
 	getCameraPositionCSS() {
@@ -43,8 +43,9 @@ export class Position {
 }
 
 export class Transform {
-	position: Position = new Position();
-	angle: Angle = new Angle();
+	position: Position;
+	angle: Angle;
+	scale: number;
 
 	positionOffset: Position = new Position();
 	angleOffset: Angle = new Angle();
@@ -56,15 +57,18 @@ export class Transform {
 		pitch: number = 0,
 		yaw: number = 0,
 		roll: number = 0,
+		scale: number = 1,
 	) {
 		this.position = new Position(x, y, z);
 		this.angle = new Angle(pitch, yaw, roll);
+		this.scale = scale;
 	}
 
 	getTransformCSS() {
 		// DOMMatrix()
 		return (
-			this.position.getPositionCSS(this.positionOffset) +
+			`scale3d(${this.scale}, ${this.scale}, ${this.scale}) ` +
+			this.position.getPositionCSS(this.positionOffset, this.scale) +
 			this.angle.getRotationCSS(this.angleOffset)
 		);
 	}

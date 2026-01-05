@@ -147,6 +147,50 @@
 			>
 			</Div3D>
 		</Object3D>
+
+		<Object3D ref="player2" :scale="0.25">
+			<Div3D
+				:transform="new Transform(125, 0, 0, 0, 0, 90)"
+				:width="250"
+				:height="250"
+				style="background-color: rgb(150, 50, 50)"
+			></Div3D>
+			<Div3D
+				:transform="new Transform(-125, 0, 0, 0, 0, -90)"
+				:width="250"
+				:height="250"
+				style="background-color: rgb(150, 150, 50)"
+			></Div3D>
+			<Div3D
+				:transform="new Transform(0, 125, 0, 90, 0, 0)"
+				:width="250"
+				:height="250"
+				style="background-color: rgb(150, 50, 150)"
+			></Div3D>
+			<Div3D
+				:transform="new Transform(0, -125, 0, -90, 0, 0)"
+				:width="250"
+				:height="250"
+				style="background-color: rgb(50, 150, 50)"
+			>
+				hello world
+				<button>Hi Bean</button>
+				<input />
+			</Div3D>
+			<Div3D
+				:transform="new Transform(0, 0, 125, 0, 0, 0)"
+				:width="250"
+				:height="250"
+				style="background-color: rgb(50, 150, 150)"
+			></Div3D>
+			<Div3D
+				:transform="new Transform(0, 0, -125, 180, 0, 0)"
+				:width="250"
+				:height="250"
+				style="background-color: rgb(50, 50, 150)"
+			>
+			</Div3D>
+		</Object3D>
 	</HTML3D>
 </template>
 
@@ -160,44 +204,41 @@ import { useTemplateRef } from 'vue';
 const boxes = [useTemplateRef('testBox1'), useTemplateRef('testBox2')];
 const world = useTemplateRef('world');
 const player = useTemplateRef('player');
+const player2 = useTemplateRef('player2');
 let once = true;
 
 function draw() {
 	requestAnimationFrame(draw);
 
-	const now = Date.now() / 1000;
+	const now = Date.now() / 3000;
 	for (const box of boxes) {
 		const pos = box.value?.transform.position;
 		const ang = box.value?.transform.angle;
 
 		if (!pos || !ang) continue;
 
-		// pos.y = Math.sin(now) * 300;
-		// pos.x = Math.cos(now * 10) * 300;
 		pos.z = Math.abs(Math.cos(now) * 1500);
 		ang.pitch = (now * 20) % 360;
 		ang.roll = (now * 100) % 360;
 		box.value.update();
 	}
 
-	if (player.value && world.value && once) {
+	if (player.value && player2.value && world.value && once) {
 		once = false;
 
 		player.value.transform.position.x = -2000;
-		player.value.transform.position.y = -2000;
+		player.value.transform.position.y = -1500;
+		player.value.transform.position.z = 500;
 		player.value.update();
 
-		world.value.setCameraPos(-2000, -2000, 150);
+		player2.value.transform.position.x = -1500;
+		player2.value.transform.position.y = -2000;
+		player2.value.transform.scale = 0.25;
+		player2.value.update();
+
+		world.value.setCameraPos(-2000, -2000, 600);
 		world.value.setCameraAng(90);
-		// world.value.camera?.transform
-		// world.value.camera.value.transform.position.x = -400;
-		// world.value.cameraTransform.position.y = -400;
-		// world.value.cameraTransform.position.z = 50;
-		// world.value.cameraTransform.angle.pitch = 90;
-		// world.value.cameraTransform.angle.yaw = 90;
-		// world.value.cameraTransform.angle.yaw = 90;
-		// world.value.cameraTransform.angle.yaw = (now * 10) % 360;
-		// world.value.cameraTransform.position.z = -200;
+
 		world.value.tick();
 	}
 
