@@ -1,3 +1,7 @@
+function toRad(degrees: number) {
+	return degrees * (Math.PI / 180);
+}
+
 export class Angle {
 	pitch: number = 0;
 	yaw: number = 0;
@@ -9,8 +13,12 @@ export class Angle {
 		this.roll = roll;
 	}
 
-	getRotationCSS() {
-		return `rotateZ(${this.yaw}deg) rotateY(${this.roll}deg) rotateX(${this.pitch}deg)`;
+	getRotationCSS(offset: Angle = new Angle()) {
+		return `rotateZ(${this.yaw + offset.yaw}deg) rotateY(${this.roll + offset.roll}deg) rotateX(${this.pitch + offset.pitch}deg) `;
+	}
+
+	getCameraRotationCSS() {
+		return `rotateX(${this.pitch}deg) rotateZ(${this.yaw}deg) `;
 	}
 }
 
@@ -25,8 +33,12 @@ export class Position {
 		this.z = z;
 	}
 
-	getPositionCSS(offset: Position) {
-		return `translate3d(${this.x + offset.x}px, ${-(this.y + offset.y)}px, ${this.z + offset.z}px)`;
+	getPositionCSS(offset: Position = new Position()) {
+		return `translate3d(${this.x + offset.x}px, ${-(this.y + offset.y)}px, ${this.z + offset.z}px) `;
+	}
+
+	getCameraPositionCSS() {
+		return `translate3d(${-this.x}px, ${this.y}px, ${-this.z}px) `;
 	}
 }
 
@@ -51,6 +63,47 @@ export class Transform {
 
 	getTransformCSS() {
 		// DOMMatrix()
-		return this.position.getPositionCSS(this.positionOffset) + this.angle.getRotationCSS();
+		return (
+			this.position.getPositionCSS(this.positionOffset) +
+			this.angle.getRotationCSS(this.angleOffset)
+		);
+	}
+
+	getCameraTransformCSS(perspective: number) {
+		return (
+			`translateZ(${perspective}px) ` +
+			this.angle.getCameraRotationCSS() +
+			this.position.getCameraPositionCSS()
+		);
+	}
+
+	getLookNormal() {
+		const lookNormal = {
+			x: -Math.sin(toRad(this.angle.yaw)) * Math.sin(toRad(this.angle.pitch)),
+			y: Math.cos(toRad(this.angle.yaw)) * Math.sin(toRad(this.angle.pitch)),
+			z: Math.cos(toRad(this.angle.pitch)),
+		};
+		const magnitude = Math.sqrt(
+			lookNormal.x * lookNormal.x + lookNormal.y * lookNormal.y + lookNormal.z * lookNormal.z,
+		);
+		lookNormal.x = lookNormal.x / magnitude;
+		lookNormal.y = lookNormal.y / magnitude;
+		lookNormal.z = lookNormal.z / magnitude;
+
+		return lookNormal;
+	}
+
+	get2DLookNormal() {
+		const lookNormal = {
+			x: -Math.sin(toRad(this.angle.yaw)),
+			y: Math.cos(toRad(this.angle.yaw)),
+			z: 0,
+		};
+		const magnitude = Math.sqrt(lookNormal.x * lookNormal.x + lookNormal.y * lookNormal.y);
+		lookNormal.x = lookNormal.x / magnitude;
+		lookNormal.y = lookNormal.y / magnitude;
+		lookNormal.z = 0;
+
+		return lookNormal;
 	}
 }

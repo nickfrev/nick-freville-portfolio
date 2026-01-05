@@ -12,11 +12,11 @@ const props = defineProps({
 	...objectProps,
 	width: {
 		type: Number,
-		default: 100,
+		default: 500,
 	},
 	height: {
 		type: Number,
-		default: 100,
+		default: 500,
 	},
 });
 const { objectStyle, objectExposables } = becomeObject(props);
@@ -38,6 +38,7 @@ const divDimensions = reactive({
 <style scoped>
 .plane {
 	display: block;
+	box-sizing: border-box;
 
 	top: 0px;
 	right: 0px;
@@ -53,5 +54,7 @@ const divDimensions = reactive({
 
 	width: 100px;
 	height: 100px;
+
+	border: solid 1px black;
 }
 </style>

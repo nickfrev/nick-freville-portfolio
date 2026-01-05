@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { objectProps, becomeObject } from './ObjectComposable';
 const props = defineProps(objectProps);
-const { objectStyle, objectExposables } = becomeObject(props);
+const { objectStyle, objectExposables } = becomeObject(props, true);
 defineExpose(objectExposables);
 </script>
 

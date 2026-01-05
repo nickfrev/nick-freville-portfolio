@@ -10,15 +10,27 @@ export const objectProps = {
 	},
 };
 
-export function becomeObject(props: { transform: Transform }) {
+export function becomeObject(props: { transform: Transform }, isCamera: boolean = false) {
 	const transform = ref(props.transform);
 
+	function getCSS() {
+		if (isCamera) {
+			const perspective = 1400;
+			return (
+				`scale(0.5) perspective(${perspective}px) ` +
+				transform.value.getCameraTransformCSS(perspective)
+			);
+		}
+
+		return transform.value.getTransformCSS();
+	}
+
 	function update() {
-		objectStyle.transform = transform.value.getTransformCSS();
+		objectStyle.transform = getCSS();
 	}
 
 	const objectStyle = reactive({
-		transform: transform.value.getTransformCSS(),
+		transform: getCSS(),
 	});
 
 	const objectExposables = {
