@@ -41,23 +41,19 @@ export function becomeObject(props: { transform: Transform }) {
 
 	// Helper functions
 	function localToWorldTransform(localTransform: Transform | DOMMatrix) {
-		// const parentLocal = transform.value.getMatrix().multiply(localTransform.getMatrix());
 		const isTransform = localTransform instanceof Transform;
+
 		const selfLocal = transform.value
 			.getMatrix()
 			.multiply(isTransform ? localTransform.getMatrix() : localTransform);
 		const selfLocalTransform = Transform.fromMatrix(selfLocal);
 
-		console.log(localTransform);
 		const parent = instance?.parent;
 		if (!parent) {
-			console.log('has no parent');
 			return selfLocalTransform;
 		}
 
 		if (isCamera(parent)) {
-			console.log('parent is camera');
-			console.log(selfLocalTransform);
 			return selfLocalTransform;
 		}
 
@@ -67,12 +63,9 @@ export function becomeObject(props: { transform: Transform }) {
 			'transform' in parent.exposed &&
 			'localToWorldTransform' in parent.exposed
 		) {
-			console.log('has parent');
-
 			return parent.exposed.localToWorldTransform(selfLocal);
 		}
 
-		console.log('default');
 		return selfLocalTransform;
 	}
 
