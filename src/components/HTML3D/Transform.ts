@@ -13,16 +13,16 @@ export class Angle {
 		this.roll = roll;
 	}
 
-	getRotationCSS(offset: Angle = new Angle()) {
-		return `rotateZ(${this.yaw + offset.yaw}deg) rotateY(${this.roll + offset.roll}deg) rotateX(${this.pitch + offset.pitch}deg) `;
+	toAxisAngle() {
+		// todo
 	}
 
-	getCameraRotationCSS() {
-		return `rotateX(${this.pitch}deg) rotateZ(${this.yaw}deg) `;
+	toQuaternion() {
+		// todo
 	}
 }
 
-export class Position {
+export class Vector {
 	x: number = 0;
 	y: number = 0;
 	z: number = 0;
@@ -32,22 +32,14 @@ export class Position {
 		this.y = y;
 		this.z = z;
 	}
-
-	getPositionCSS(offset: Position = new Position(), scale: number = 1) {
-		return `translate3d(${(this.x + offset.x) / scale}px, ${-(this.y + offset.y) / scale}px, ${(this.z + offset.z) / scale}px) `;
-	}
-
-	getCameraPositionCSS() {
-		return `translate3d(${-this.x}px, ${this.y}px, ${-this.z}px) `;
-	}
 }
 
 export class Transform {
-	position: Position;
+	position: Vector;
 	angle: Angle;
 	scale: number;
 
-	positionOffset: Position = new Position();
+	positionOffset: Vector = new Vector();
 	angleOffset: Angle = new Angle();
 
 	constructor(
@@ -59,31 +51,79 @@ export class Transform {
 		roll: number = 0,
 		scale: number = 1,
 	) {
-		this.position = new Position(x, y, z);
+		this.position = new Vector(x, y, z);
 		this.angle = new Angle(pitch, yaw, roll);
 		this.scale = scale;
 	}
 
-	getTransformCSS() {
-		// DOMMatrix()
-		return (
-			`scale3d(${this.scale}, ${this.scale}, ${this.scale}) ` +
-			this.position.getPositionCSS(this.positionOffset, this.scale) +
-			this.angle.getRotationCSS(this.angleOffset)
+	static fromMatrix(matrix: DOMMatrix) {
+		const x = matrix.m41;
+		const y = matrix.m42;
+		const z = matrix.m43;
+
+		const pitch = 0;
+		const yaw = 0;
+		const roll = 0;
+
+		return new Transform(x, y, z, pitch, yaw, roll);
+	}
+
+	getRenderMatrix() {
+		const matrix = new DOMMatrix();
+		matrix.translateSelf(
+			this.position.x + this.positionOffset.x,
+			-(this.position.y + this.positionOffset.y), // Invert y because chrome renders y = 0 as top of screen
+			this.position.z + this.positionOffset.z,
 		);
+
+		matrix.scale3dSelf(this.scale, this.scale, this.scale);
+
+		matrix.rotateAxisAngleSelf(0, 0, 1, -this.angle.yaw); // Invert yaw because we inverted y
+		matrix.rotateAxisAngleSelf(0, 1, 0, this.angle.roll);
+		matrix.rotateAxisAngleSelf(1, 0, 0, this.angle.pitch);
+
+		return matrix;
+	}
+
+	getMatrix() {
+		const matrix = new DOMMatrix();
+		matrix.translateSelf(this.position.x, this.position.y, this.position.z);
+		matrix.scale3dSelf(this.scale, this.scale, this.scale);
+
+		matrix.rotateAxisAngleSelf(0, 0, 1, this.angle.yaw);
+		matrix.rotateAxisAngleSelf(0, 1, 0, this.angle.roll);
+		matrix.rotateAxisAngleSelf(1, 0, 0, -this.angle.pitch);
+
+		return matrix;
+	}
+
+	getCameraRenderMatrix(perspective: number): DOMMatrix {
+		const matrix = new DOMMatrix();
+		matrix.translateSelf(0, 0, perspective);
+
+		matrix.rotateAxisAngleSelf(1, 0, 0, this.angle.pitch);
+		matrix.rotateAxisAngleSelf(0, 0, 1, -this.angle.yaw); // Invert yaw because we inverted y
+
+		matrix.translateSelf(
+			-(this.position.x + this.positionOffset.x),
+			this.position.y + this.positionOffset.y, // Invert y because chrome renders y = 0 as top of screen
+			-(this.position.z + this.positionOffset.z),
+		);
+
+		return matrix;
+	}
+
+	getTransformCSS() {
+		return this.getRenderMatrix().toString();
 	}
 
 	getCameraTransformCSS(perspective: number) {
-		return (
-			`translateZ(${perspective}px) ` +
-			this.angle.getCameraRotationCSS() +
-			this.position.getCameraPositionCSS()
-		);
+		return this.getCameraRenderMatrix(perspective).toString();
 	}
 
 	getLookNormal() {
 		const lookNormal = {
-			x: -Math.sin(toRad(this.angle.yaw)) * Math.sin(toRad(this.angle.pitch)),
+			x: Math.sin(toRad(this.angle.yaw)) * Math.sin(toRad(this.angle.pitch)),
 			y: Math.cos(toRad(this.angle.yaw)) * Math.sin(toRad(this.angle.pitch)),
 			z: Math.cos(toRad(this.angle.pitch)),
 		};
@@ -99,7 +139,7 @@ export class Transform {
 
 	get2DLookNormal() {
 		const lookNormal = {
-			x: -Math.sin(toRad(this.angle.yaw)),
+			x: Math.sin(toRad(this.angle.yaw)),
 			y: Math.cos(toRad(this.angle.yaw)),
 			z: 0,
 		};

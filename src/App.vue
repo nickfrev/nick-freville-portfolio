@@ -64,7 +64,7 @@
 			</Div3D>
 		</Object3D>
 
-		<Object3D>
+		<Object3D :transform="new Transform(0, 0, 0, 0, 0, 90)">
 			<Div3D
 				:transform="new Transform(125, 0, 0, 0, 0, 90)"
 				:width="250"
@@ -106,49 +106,63 @@
 
 		<Object3D ref="player">
 			<Div3D
-				:transform="new Transform(125, 0, 0, 0, 0, 90)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(150, 50, 50)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(-125, 0, 0, 0, 0, -90)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(150, 150, 50)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, 125, 0, 90, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(150, 50, 150)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, -125, 0, -90, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(50, 150, 50)"
-			>
-				hello world
-				<button>Hi Bean</button>
-				<input />
-			</Div3D>
-			<Div3D
-				:transform="new Transform(0, 0, 125, 0, 0, 0)"
+				:transform="new Transform(0, 0, 0, 0, 0, 0)"
 				:width="250"
 				:height="250"
 				style="background-color: rgb(50, 150, 150)"
 			></Div3D>
-			<Div3D
-				:transform="new Transform(0, 0, -125, 180, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(50, 50, 150)"
-			>
-			</Div3D>
+			<Object3D :transform="new Transform(0, 0, 500, 30, 30, 30)">
+				<Div3D
+					:transform="new Transform(125, 0, 0, 0, 0, 90)"
+					:width="250"
+					:height="250"
+					style="background-color: rgb(150, 50, 50)"
+				></Div3D>
+				<Div3D
+					:transform="new Transform(-125, 0, 0, 0, 0, -90)"
+					:width="250"
+					:height="250"
+					style="background-color: rgb(150, 150, 50)"
+				></Div3D>
+				<Div3D
+					:transform="new Transform(0, 125, 0, 90, 0, 0)"
+					:width="250"
+					:height="250"
+					style="background-color: rgb(150, 50, 150)"
+				></Div3D>
+				<Div3D
+					ref="targetFocusElement"
+					:transform="new Transform(0, -125, 0, -90, 0, 0)"
+					:width="250"
+					:height="250"
+					style="background-color: rgb(150, 150, 150)"
+				>
+					hello world
+					<button @click="focusElement">Hi Bean</button>
+					<input />
+					<img
+						src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/French_beans_J1.JPG/960px-French_beans_J1.JPG"
+						style="width: 50%"
+					/>
+				</Div3D>
+				<Div3D
+					:transform="new Transform(0, 0, 125, 0, 0, 0)"
+					:width="250"
+					:height="250"
+					style="background-color: rgb(50, 50, 150)"
+				>
+				</Div3D>
+				<Div3D
+					:transform="new Transform(0, 0, -125, 180, 0, 0)"
+					:width="250"
+					:height="250"
+					style="background-color: rgb(50, 50, 150)"
+				>
+				</Div3D>
+			</Object3D>
 		</Object3D>
 
-		<Object3D ref="player2" :scale="0.25">
+		<Object3D ref="player2">
 			<Div3D
 				:transform="new Transform(125, 0, 0, 0, 0, 90)"
 				:width="250"
@@ -205,6 +219,7 @@ const boxes = [useTemplateRef('testBox1'), useTemplateRef('testBox2')];
 const world = useTemplateRef('world');
 const player = useTemplateRef('player');
 const player2 = useTemplateRef('player2');
+const targetFocusElement = useTemplateRef('targetFocusElement');
 let once = true;
 
 function draw() {
@@ -226,17 +241,21 @@ function draw() {
 	if (player.value && player2.value && world.value && once) {
 		once = false;
 
-		player.value.transform.position.x = -2000;
-		player.value.transform.position.y = -1500;
-		player.value.transform.position.z = 500;
+		player.value.transform.position.x = 2000;
+		player.value.transform.position.y = 1500;
+		player.value.transform.angle.pitch = 30;
+		player.value.transform.angle.yaw = -70;
+		player.value.transform.angle.roll = 50;
 		player.value.update();
 
-		player2.value.transform.position.x = -1500;
-		player2.value.transform.position.y = -2000;
+		player2.value.transform.position.x = 1500;
+		player2.value.transform.position.y = 1500;
+		player2.value.transform.position.z = 500;
 		player2.value.transform.scale = 0.25;
+		player2.value.transform.angle.yaw = 50;
 		player2.value.update();
 
-		world.value.setCameraPos(-2000, -2000, 600);
+		world.value.setCameraPos(2000, 0, 600);
 		world.value.setCameraAng(90);
 
 		world.value.tick();
@@ -247,6 +266,20 @@ function draw() {
 	}
 }
 requestAnimationFrame(draw);
+
+function focusElement() {
+	// if (world.value && targetFocusElement.value) {
+	// 	world.value.focusCameraOn(targetFocusElement.value);
+	// }
+	if (player.value && player2.value && targetFocusElement.value) {
+		const newTransform = targetFocusElement.value.localToWorldTransform(new Transform(0, 0, 100));
+
+		player2.value.transform.position.x = newTransform.position.x;
+		player2.value.transform.position.y = newTransform.position.y;
+		player2.value.transform.position.z = newTransform.position.z;
+		player2.value.update();
+	}
+}
 </script>
 
 <style scoped>

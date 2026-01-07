@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { Position, Transform } from './Transform';
+import { Vector, Transform } from './Transform';
 import Camera3D from './Camera3D.vue';
 import { useTemplateRef } from 'vue';
 
@@ -27,26 +27,26 @@ const transformBuffer = new Transform();
 let transformBufferChange = false;
 function setCameraPos(x: null | number = null, y: null | number = null, z: null | number = null) {
 	transformBufferChange = true;
-	if (x) {
+	if (x !== null) {
 		transformBuffer.position.x = x;
 	}
-	if (y) {
+	if (y !== null) {
 		transformBuffer.position.y = y;
 	}
-	if (z) {
+	if (z !== null) {
 		transformBuffer.position.z = z;
 	}
 }
 
 function addToCameraPos(x: null | number = null, y: null | number = null, z: null | number = null) {
 	transformBufferChange = true;
-	if (x) {
+	if (x !== null) {
 		transformBuffer.position.x += x;
 	}
-	if (y) {
+	if (y !== null) {
 		transformBuffer.position.y += y;
 	}
-	if (z) {
+	if (z !== null) {
 		transformBuffer.position.z += z;
 	}
 }
@@ -57,13 +57,13 @@ function setCameraAng(
 	roll: null | number = null,
 ) {
 	transformBufferChange = true;
-	if (pitch) {
+	if (pitch !== null) {
 		transformBuffer.angle.pitch = pitch;
 	}
-	if (yaw) {
+	if (yaw !== null) {
 		transformBuffer.angle.yaw = yaw;
 	}
-	if (roll) {
+	if (roll !== null) {
 		transformBuffer.angle.roll = roll;
 	}
 }
@@ -74,23 +74,24 @@ function addToCameraAng(
 	roll: null | number = null,
 ) {
 	transformBufferChange = true;
-	if (pitch) {
+	if (pitch !== null) {
 		transformBuffer.angle.pitch += pitch;
 	}
-	if (yaw) {
+	if (yaw !== null) {
 		transformBuffer.angle.yaw += yaw;
 	}
-	if (roll) {
+	if (roll !== null) {
 		transformBuffer.angle.roll += roll;
 	}
 }
 
-function setWorldScale(scale: number) {
-	transformBuffer.scale = scale;
-	transformBuffer.position.x *= scale;
-	transformBuffer.position.y *= scale;
-	// transformBuffer.position.z *= scale;
-	transformBufferChange = true;
+function focusCameraOn(target: { transform: Transform }) {
+	const lookNormal = target.transform.getLookNormal();
+	setCameraPos(
+		target.transform.position.x + lookNormal.x * 100,
+		target.transform.position.y + lookNormal.y * 100,
+		target.transform.position.z + lookNormal.z * 100,
+	);
 }
 
 function checkForCameraTransformChange() {
@@ -107,8 +108,6 @@ function checkForCameraTransformChange() {
 		camera.value.transform.angle.pitch = transformBuffer.angle.pitch;
 		camera.value.transform.angle.yaw = transformBuffer.angle.yaw;
 		camera.value.transform.angle.roll = transformBuffer.angle.roll;
-
-		camera.value.setScale(transformBuffer.scale);
 	}
 }
 /////
@@ -148,6 +147,11 @@ function onMouseDown(event: MouseEvent) {
 function onMouseUp(event: MouseEvent) {
 	if (event.button == 2) {
 		mouseDown = false;
+		moveForward = false;
+		moveBackward = false;
+		moveLeft = false;
+		moveRight = false;
+		moveRun = false;
 		event.stopPropagation();
 		event.preventDefault();
 	}
@@ -161,7 +165,7 @@ function onMouseMove(event: MouseEvent) {
 	if (mouseDown) {
 		const diff = { x: event.clientX - lastPos.x, y: event.clientY - lastPos.y };
 		lastPos = { x: event.clientX, y: event.clientY };
-		addToCameraAng(-diff.y * 0.25, -diff.x * 0.25);
+		addToCameraAng(-diff.y * 0.25, diff.x * 0.25);
 
 		event.stopPropagation();
 		event.preventDefault();
@@ -179,7 +183,7 @@ function onContextMenu(event: MouseEvent) {
 document.addEventListener('keydown', onKeyDown);
 document.addEventListener('keyup', onKeyUp);
 
-const moveVector = new Position();
+const moveVector = new Vector();
 let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
@@ -232,7 +236,7 @@ function onKeyUp(event: KeyboardEvent) {
 	}
 }
 
-defineExpose({ setCameraPos, setCameraAng, setWorldScale, tick });
+defineExpose({ setCameraPos, setCameraAng, focusCameraOn, tick });
 </script>
 
 <style scoped>
