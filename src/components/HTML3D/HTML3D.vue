@@ -8,13 +8,14 @@
 		@mouseleave="onMouseLeave"
 	>
 		<Camera3D ref="cameraScene">
-			<slot></slot>
+			<slot ref="slotContent"></slot>
 		</Camera3D>
 	</div>
+	<div class="debug"><slot name="debug"></slot></div>
 </template>
 
 <script setup lang="ts">
-import { Vector, Transform } from './Transform';
+import { Vector, Transform, Angle } from './Transform';
 import Camera3D from './Camera3D.vue';
 import { useTemplateRef } from 'vue';
 
@@ -24,30 +25,33 @@ const camera = useTemplateRef('cameraScene');
 // Set the Camera's position and angle
 /////
 const transformBuffer = new Transform();
+const cameraPositionBuffer = new Vector();
+const cameraAngleBuffer = new Angle();
 let transformBufferChange = false;
 function setCameraPos(x: null | number = null, y: null | number = null, z: null | number = null) {
 	transformBufferChange = true;
+
 	if (x !== null) {
-		transformBuffer.position.x = x;
+		cameraPositionBuffer.x = x;
 	}
 	if (y !== null) {
-		transformBuffer.position.y = y;
+		cameraPositionBuffer.y = y;
 	}
 	if (z !== null) {
-		transformBuffer.position.z = z;
+		cameraPositionBuffer.z = z;
 	}
 }
 
 function addToCameraPos(x: null | number = null, y: null | number = null, z: null | number = null) {
 	transformBufferChange = true;
 	if (x !== null) {
-		transformBuffer.position.x += x;
+		cameraPositionBuffer.x += x;
 	}
 	if (y !== null) {
-		transformBuffer.position.y += y;
+		cameraPositionBuffer.y += y;
 	}
 	if (z !== null) {
-		transformBuffer.position.z += z;
+		cameraPositionBuffer.z += z;
 	}
 }
 
@@ -57,14 +61,15 @@ function setCameraAng(
 	roll: null | number = null,
 ) {
 	transformBufferChange = true;
+
 	if (pitch !== null) {
-		transformBuffer.angle.pitch = pitch;
+		cameraAngleBuffer.pitch = pitch;
 	}
 	if (yaw !== null) {
-		transformBuffer.angle.yaw = yaw;
+		cameraAngleBuffer.yaw = yaw;
 	}
 	if (roll !== null) {
-		transformBuffer.angle.roll = roll;
+		cameraAngleBuffer.roll = roll;
 	}
 }
 
@@ -75,23 +80,23 @@ function addToCameraAng(
 ) {
 	transformBufferChange = true;
 	if (pitch !== null) {
-		transformBuffer.angle.pitch += pitch;
+		cameraAngleBuffer.pitch += pitch;
 	}
 	if (yaw !== null) {
-		transformBuffer.angle.yaw += yaw;
+		cameraAngleBuffer.yaw += yaw;
 	}
 	if (roll !== null) {
-		transformBuffer.angle.roll += roll;
+		cameraAngleBuffer.roll += roll;
 	}
 }
 
 function focusCameraOn(target: { transform: Transform }) {
-	const lookNormal = target.transform.getLookNormal();
-	setCameraPos(
-		target.transform.position.x + lookNormal.x * 100,
-		target.transform.position.y + lookNormal.y * 100,
-		target.transform.position.z + lookNormal.z * 100,
-	);
+	// const lookNormal = target.transform.getLookNormal();
+	// setCameraPos(
+	// 	target.transform.position.x + lookNormal.x * 100,
+	// 	target.transform.position.y + lookNormal.y * 100,
+	// 	target.transform.position.z + lookNormal.z * 100,
+	// );
 }
 
 function checkForCameraTransformChange() {
@@ -101,27 +106,36 @@ function checkForCameraTransformChange() {
 
 	if (transformBufferChange) {
 		transformBufferChange = false;
-		camera.value.transform.position.x = transformBuffer.position.x;
-		camera.value.transform.position.y = transformBuffer.position.y;
-		camera.value.transform.position.z = transformBuffer.position.z;
 
-		camera.value.transform.angle.pitch = transformBuffer.angle.pitch;
-		camera.value.transform.angle.yaw = transformBuffer.angle.yaw;
-		camera.value.transform.angle.roll = transformBuffer.angle.roll;
+		cameraAngleBuffer.roll = 0;
+		cameraAngleBuffer.pitch = cameraAngleBuffer.pitch > 179 ? 179 : cameraAngleBuffer.pitch;
+		cameraAngleBuffer.pitch = cameraAngleBuffer.pitch < 1 ? 1 : cameraAngleBuffer.pitch;
+
+		transformBuffer.setPosition(cameraPositionBuffer);
+		transformBuffer.setAngle(cameraAngleBuffer);
+
+		camera.value.transform.setPosition(cameraPositionBuffer);
+		camera.value.transform.setAngle(cameraAngleBuffer);
 	}
 }
+
 /////
 // Main logic loop for updating
 /////
+let firstTick = true;
 function tick() {
 	if (!camera.value) {
 		return;
 	}
 
-	moveTick();
-	checkForCameraTransformChange();
+	if (mouseDown || firstTick || transformBufferChange) {
+		firstTick = false;
+		moveTick();
+		checkForCameraTransformChange();
+	}
 
-	camera.value.update();
+	// This tick cascades to all children components
+	camera.value.tick();
 }
 
 /////
@@ -192,10 +206,12 @@ let moveRun = false;
 
 function moveTick() {
 	const speed = 15 * (moveRun ? 3 : 1);
+
 	moveVector.y = moveForward ? speed : moveBackward ? -speed : 0;
 	moveVector.x = moveRight ? speed : moveLeft ? -speed : 0;
 	// Get the movement vectors
 	const lookNormal = transformBuffer.get2DLookNormal();
+
 	// Add that to the current position
 	if (moveVector.y || moveVector.x) {
 		// Project the move vector along the look normal
@@ -236,10 +252,17 @@ function onKeyUp(event: KeyboardEvent) {
 	}
 }
 
-defineExpose({ setCameraPos, setCameraAng, focusCameraOn, tick });
+defineExpose({ camera, setCameraPos, setCameraAng, focusCameraOn, tick });
 </script>
 
 <style scoped>
+.debug {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	color: white;
+	background-color: rgba(0, 0, 0, 0.25);
+}
 .cameraSpace {
 	position: absolute;
 	top: 0px;

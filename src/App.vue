@@ -1,208 +1,44 @@
 <template>
 	<HTML3D ref="world">
-		<Object3D ref="testBox1">
+		<debugCube ref="debugCubeRef"> </debugCube>
+
+		<Object3D ref="testBox1" :transform="new Transform(0, 0, 1500, 0, 0, 0)">
 			<Div3D
 				:transform="new Transform(250, 0, 0, 0, 0, 90)"
 				style="background-color: rgb(200, 50, 50)"
-			></Div3D>
+			>
+				<div style="width: 100%; height: 100%; text-align: center; line-height: 250px">RIGHT</div>
+			</Div3D>
 			<Div3D
 				:transform="new Transform(-250, 0, 0, 0, 0, -90)"
 				style="background-color: rgb(200, 200, 50)"
-			></Div3D>
+			>
+				<div style="width: 100%; height: 100%; text-align: center; line-height: 250px">LEFT</div>
+			</Div3D>
 			<Div3D
-				:transform="new Transform(0, 250, 0, 90, 0, 0)"
+				:transform="new Transform(0, 250, 0, -90, 0, 180)"
 				style="background-color: rgb(200, 50, 200)"
-			></Div3D>
+			>
+				<div style="width: 100%; height: 100%; text-align: center; line-height: 250px">FRONT</div>
+			</Div3D>
 			<Div3D
-				:transform="new Transform(0, -250, 0, -90, 0, 0)"
+				:transform="new Transform(0, -250, 0, 90, 0, 0)"
 				style="background-color: rgb(50, 200, 50)"
-			></Div3D>
+			>
+				<div style="width: 100%; height: 100%; text-align: center; line-height: 250px">BACK</div>
+			</Div3D>
 			<Div3D
 				:transform="new Transform(0, 0, 250, 0, 0, 0)"
-				style="background-color: rgb(50, 200, 200)"
-			></Div3D>
-		</Object3D>
-
-		<Object3D ref="testBox2">
-			<Div3D
-				:transform="new Transform(125, 0, 0, 0, 0, 90)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(150, 50, 50)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(-125, 0, 0, 0, 0, -90)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(150, 150, 50)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, 125, 0, 90, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(150, 50, 150)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, -125, 0, -90, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(50, 150, 50)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, 0, 125, 0, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(50, 150, 150)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, 0, -125, 180, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(50, 50, 150)"
+				style="background-color: rgb(50, 200, 255)"
 			>
-				<button>Hello</button>
+				<div style="width: 100%; height: 100%; text-align: center; line-height: 250px">TOP</div>
 			</Div3D>
-		</Object3D>
 
-		<Object3D :transform="new Transform(0, 0, 0, 0, 0, 90)">
 			<Div3D
-				:transform="new Transform(125, 0, 0, 0, 0, 90)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(150, 50, 50)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(-125, 0, 0, 0, 0, -90)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(150, 150, 50)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, 125, 0, 90, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(150, 50, 150)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, -125, 0, -90, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(50, 150, 50)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, 0, 125, 0, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(50, 150, 150)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, 0, -125, 180, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(50, 50, 150)"
+				:transform="new Transform(0, 0, -250, 180, 0, 0)"
+				style="background-color: rgb(50, 200, 255)"
 			>
-			</Div3D>
-		</Object3D>
-
-		<Object3D ref="player">
-			<Div3D
-				:transform="new Transform(0, 0, 0, 0, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(50, 150, 150)"
-			></Div3D>
-			<Object3D :transform="new Transform(0, 0, 500, 30, 30, 30)">
-				<Div3D
-					:transform="new Transform(125, 0, 0, 0, 0, 90)"
-					:width="250"
-					:height="250"
-					style="background-color: rgb(150, 50, 50)"
-				></Div3D>
-				<Div3D
-					:transform="new Transform(-125, 0, 0, 0, 0, -90)"
-					:width="250"
-					:height="250"
-					style="background-color: rgb(150, 150, 50)"
-				></Div3D>
-				<Div3D
-					:transform="new Transform(0, 125, 0, 90, 0, 0)"
-					:width="250"
-					:height="250"
-					style="background-color: rgb(150, 50, 150)"
-				></Div3D>
-				<Div3D
-					ref="targetFocusElement"
-					:transform="new Transform(0, -125, 0, -90, 0, 0)"
-					:width="250"
-					:height="250"
-					style="background-color: rgb(150, 150, 150)"
-				>
-					hello world
-					<button @click="focusElement">Hi Bean</button>
-					<input />
-					<img
-						src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/French_beans_J1.JPG/960px-French_beans_J1.JPG"
-						style="width: 50%"
-					/>
-				</Div3D>
-				<Div3D
-					:transform="new Transform(0, 0, 125, 0, 0, 0)"
-					:width="250"
-					:height="250"
-					style="background-color: rgb(50, 50, 150)"
-				>
-				</Div3D>
-				<Div3D
-					:transform="new Transform(0, 0, -125, 180, 0, 0)"
-					:width="250"
-					:height="250"
-					style="background-color: rgb(50, 50, 150)"
-				>
-				</Div3D>
-			</Object3D>
-		</Object3D>
-
-		<Object3D ref="player2">
-			<Div3D
-				:transform="new Transform(125, 0, 0, 0, 0, 90)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(150, 50, 50)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(-125, 0, 0, 0, 0, -90)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(150, 150, 50)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, 125, 0, 90, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(150, 50, 150)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, -125, 0, -90, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(50, 150, 50)"
-			>
-				hello world
-				<button>Hi Bean</button>
-				<input />
-			</Div3D>
-			<Div3D
-				:transform="new Transform(0, 0, 125, 0, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(50, 150, 150)"
-			></Div3D>
-			<Div3D
-				:transform="new Transform(0, 0, -125, 180, 0, 0)"
-				:width="250"
-				:height="250"
-				style="background-color: rgb(50, 50, 150)"
-			>
+				<div style="width: 100%; height: 100%; text-align: center; line-height: 250px">BOTTOM</div>
 			</Div3D>
 		</Object3D>
 	</HTML3D>
@@ -212,80 +48,27 @@
 import HTML3D from './components/HTML3D/HTML3D.vue';
 import Object3D from './components/HTML3D/Object3D.vue';
 import Div3D from './components/HTML3D/Div3D.vue';
+import debugCube from './components/HTML3D/objects/debugCube.vue';
 import { Transform } from './components/HTML3D/Transform';
 import { useTemplateRef } from 'vue';
 
-const boxes = [useTemplateRef('testBox1'), useTemplateRef('testBox2')];
 const world = useTemplateRef('world');
-const player = useTemplateRef('player');
-const player2 = useTemplateRef('player2');
-const targetFocusElement = useTemplateRef('targetFocusElement');
 let once = true;
 
 function draw() {
 	requestAnimationFrame(draw);
 
-	const now = Date.now() / 3000;
-	for (const box of boxes) {
-		const pos = box.value?.transform.position;
-		const ang = box.value?.transform.angle;
-
-		if (!pos || !ang) continue;
-
-		pos.z = Math.abs(Math.cos(now) * 1500);
-		ang.pitch = (now * 20) % 360;
-		ang.roll = (now * 100) % 360;
-		box.value.update();
-	}
-
-	if (player.value && player2.value && world.value && once) {
-		once = false;
-
-		player.value.transform.position.x = 2000;
-		player.value.transform.position.y = 1500;
-		player.value.transform.angle.pitch = 30;
-		player.value.transform.angle.yaw = -70;
-		player.value.transform.angle.roll = 50;
-		player.value.update();
-
-		player2.value.transform.position.x = 1500;
-		player2.value.transform.position.y = 1500;
-		player2.value.transform.position.z = 500;
-		player2.value.transform.scale = 0.25;
-		player2.value.transform.angle.yaw = 50;
-		player2.value.update();
-
-		world.value.setCameraPos(2000, 0, 600);
-		world.value.setCameraAng(90);
-
-		world.value.tick();
-	}
-
 	if (world.value) {
 		world.value.tick();
+
+		if (once) {
+			once = false;
+
+			world.value.setCameraPos(0, 0, 800);
+		}
 	}
 }
 requestAnimationFrame(draw);
-
-function focusElement() {
-	// if (world.value && targetFocusElement.value) {
-	// 	world.value.focusCameraOn(targetFocusElement.value);
-	// }
-	if (player.value && player2.value && targetFocusElement.value) {
-		const newTransform = targetFocusElement.value.localToWorldTransform(new Transform(0, 0, 100));
-
-		player2.value.transform.position.x = newTransform.position.x;
-		player2.value.transform.position.y = newTransform.position.y;
-		player2.value.transform.position.z = newTransform.position.z;
-		player2.value.update();
-	}
-}
 </script>
 
-<style scoped>
-.contentScale {
-	line-height: 0.1rem;
-	font-size: 0.1rem;
-	color: red;
-}
-</style>
+<style scoped></style>

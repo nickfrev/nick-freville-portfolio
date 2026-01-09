@@ -25,8 +25,9 @@ defineExpose(objectExposables);
 const width = ref(props.width);
 const height = ref(props.height);
 
-objectExposables.transform.value.positionOffset.x = width.value / 2;
-objectExposables.transform.value.positionOffset.y = height.value / 2;
+const offset = objectExposables.transform.value.renderOffset;
+offset.m41 = width.value / 2;
+offset.m42 = -height.value / 2;
 objectExposables.update();
 
 const divDimensions = reactive({
@@ -36,25 +37,5 @@ const divDimensions = reactive({
 </script>
 
 <style scoped>
-.plane {
-	display: block;
-	box-sizing: border-box;
-
-	top: 0px;
-	right: 0px;
-
-	position: absolute;
-	backface-visibility: hidden;
-
-	background-color: black;
-	visibility: visible;
-	transform-origin: center;
-	transform-style: preserve-3d;
-	transform-box: content-box;
-
-	width: 100px;
-	height: 100px;
-
-	border: solid 1px black;
-}
+@import './ObjectComposable.css';
 </style>
