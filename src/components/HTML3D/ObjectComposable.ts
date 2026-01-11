@@ -42,10 +42,7 @@ export function becomeObject(props: { transform: Transform }, callbacks?: object
 	const selfIsCamera = isCamera(instance);
 
 	onMounted(() => {
-		if (!selfIsCamera) {
-			// The Camera is controlled separately due to it's importance to a smooth user experience
-			world.registerNewObject(instance.exposed as SceneObject);
-		}
+		world.registerNewObject(instance.exposed as SceneObject);
 	});
 
 	function getCSS() {

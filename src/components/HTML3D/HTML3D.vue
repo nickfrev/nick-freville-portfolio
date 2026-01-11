@@ -1,125 +1,28 @@
 <template>
 	<div
 		class="viewPort"
-		@mousedown="onMouseDown"
-		@mouseup="onMouseUp"
-		@mousemove="onMouseMove"
-		@contextmenu="onContextMenu"
-		@mouseleave="onMouseLeave"
+		@mousedown="cameraController.onMouseDown"
+		@mouseup="cameraController.onMouseUp"
+		@mousemove="cameraController.onMouseMove"
+		@contextmenu="cameraController.onContextMenu"
+		@mouseleave="cameraController.onMouseLeave"
 	>
 		<Camera3D ref="cameraScene">
-			<slot ref="slotContent"></slot>
+			<slot></slot>
 		</Camera3D>
 	</div>
 	<div class="debug"><slot name="debug"></slot></div>
 </template>
 
 <script setup lang="ts">
-import { Vector, Transform, Angle } from './Transform';
+import CameraController from './CameraController.ts';
 import Camera3D from './Camera3D.vue';
 import { useTemplateRef } from 'vue';
 
 import type { SceneObject } from './ObjectComposable.ts';
 
 const camera = useTemplateRef('cameraScene');
-
-/////
-// Set the Camera's position and angle
-/////
-const transformBuffer = new Transform();
-const cameraPositionBuffer = new Vector();
-const cameraAngleBuffer = new Angle();
-let transformBufferChange = false;
-function setCameraPos(x: null | number = null, y: null | number = null, z: null | number = null) {
-	transformBufferChange = true;
-
-	if (x !== null) {
-		cameraPositionBuffer.x = x;
-	}
-	if (y !== null) {
-		cameraPositionBuffer.y = y;
-	}
-	if (z !== null) {
-		cameraPositionBuffer.z = z;
-	}
-}
-
-function addToCameraPos(x: null | number = null, y: null | number = null, z: null | number = null) {
-	transformBufferChange = true;
-	if (x !== null) {
-		cameraPositionBuffer.x += x;
-	}
-	if (y !== null) {
-		cameraPositionBuffer.y += y;
-	}
-	if (z !== null) {
-		cameraPositionBuffer.z += z;
-	}
-}
-
-function setCameraAng(
-	pitch: null | number = null,
-	yaw: null | number = null,
-	roll: null | number = null,
-) {
-	transformBufferChange = true;
-
-	if (pitch !== null) {
-		cameraAngleBuffer.pitch = pitch;
-	}
-	if (yaw !== null) {
-		cameraAngleBuffer.yaw = yaw;
-	}
-	if (roll !== null) {
-		cameraAngleBuffer.roll = roll;
-	}
-}
-
-function addToCameraAng(
-	pitch: null | number = null,
-	yaw: null | number = null,
-	roll: null | number = null,
-) {
-	transformBufferChange = true;
-	if (pitch !== null) {
-		cameraAngleBuffer.pitch += pitch;
-	}
-	if (yaw !== null) {
-		cameraAngleBuffer.yaw += yaw;
-	}
-	if (roll !== null) {
-		cameraAngleBuffer.roll += roll;
-	}
-}
-
-function focusCameraOn(target: { transform: Transform }) {
-	// const lookNormal = target.transform.getLookNormal();
-	// setCameraPos(
-	// 	target.transform.position.x + lookNormal.x * 100,
-	// 	target.transform.position.y + lookNormal.y * 100,
-	// 	target.transform.position.z + lookNormal.z * 100,
-	// );
-}
-
-function checkForCameraTransformChange() {
-	if (!camera.value) {
-		return;
-	}
-
-	if (transformBufferChange) {
-		transformBufferChange = false;
-
-		cameraAngleBuffer.roll = 0;
-		cameraAngleBuffer.pitch = cameraAngleBuffer.pitch > 179 ? 179 : cameraAngleBuffer.pitch;
-		cameraAngleBuffer.pitch = cameraAngleBuffer.pitch < 1 ? 1 : cameraAngleBuffer.pitch;
-
-		transformBuffer.setPosition(cameraPositionBuffer);
-		transformBuffer.setAngle(cameraAngleBuffer);
-
-		camera.value.transform.setPosition(cameraPositionBuffer);
-		camera.value.transform.setAngle(cameraAngleBuffer);
-	}
-}
+const cameraController = new CameraController();
 
 /////
 // Main logic loop for updating
@@ -132,147 +35,25 @@ function registerNewObject(object: SceneObject) {
 	sceneObjects.set(newId, object);
 }
 
-let firstRender = true;
 function render() {
-	if (!camera.value) {
-		return;
+	if (camera.value) {
+		cameraController.render(camera.value);
 	}
 
-	if (mouseDown || firstRender || transformBufferChange) {
-		firstRender = false;
-		moveTick();
-		checkForCameraTransformChange();
-	}
-
-	// Tick the camera
-	camera.value.render();
-
-	for (const [key, value] of sceneObjects) {
+	for (const [, value] of sceneObjects) {
 		value.render();
 	}
 }
 
 function tick() {
-	for (const [key, value] of sceneObjects) {
+	cameraController.tick();
+
+	for (const [, value] of sceneObjects) {
 		value.tick();
 	}
 }
 
-/////
-// Mouse Controls for looking around
-/////
-let mouseDown = false;
-let lastPos = { x: 0, y: 0 };
-function onMouseDown(event: MouseEvent) {
-	if (event.button == 2) {
-		mouseDown = true;
-
-		lastPos = { x: event.clientX, y: event.clientY };
-		event.stopPropagation();
-		event.preventDefault();
-
-		// Blur the active element so we are not typing in text boxes
-		if (document.activeElement && 'blur' in document.activeElement) {
-			(document.activeElement as HTMLElement).blur();
-		}
-	}
-}
-
-function onMouseUp(event: MouseEvent) {
-	if (event.button == 2) {
-		mouseDown = false;
-		moveForward = false;
-		moveBackward = false;
-		moveLeft = false;
-		moveRight = false;
-		moveRun = false;
-		event.stopPropagation();
-		event.preventDefault();
-	}
-}
-
-function onMouseLeave() {
-	mouseDown = false;
-}
-
-function onMouseMove(event: MouseEvent) {
-	if (mouseDown) {
-		const diff = { x: event.clientX - lastPos.x, y: event.clientY - lastPos.y };
-		lastPos = { x: event.clientX, y: event.clientY };
-		addToCameraAng(-diff.y * 0.25, diff.x * 0.25);
-
-		event.stopPropagation();
-		event.preventDefault();
-	}
-}
-
-function onContextMenu(event: MouseEvent) {
-	event.stopPropagation();
-	event.preventDefault();
-}
-
-/////
-// Keyboard Controls
-/////
-document.addEventListener('keydown', onKeyDown);
-document.addEventListener('keyup', onKeyUp);
-
-const moveVector = new Vector();
-let moveForward = false;
-let moveBackward = false;
-let moveLeft = false;
-let moveRight = false;
-let moveRun = false;
-
-function moveTick() {
-	const speed = 15 * (moveRun ? 3 : 1);
-
-	moveVector.y = moveForward ? speed : moveBackward ? -speed : 0;
-	moveVector.x = moveRight ? speed : moveLeft ? -speed : 0;
-	// Get the movement vectors
-	const lookNormal = transformBuffer.get2DLookNormal();
-
-	// Add that to the current position
-	if (moveVector.y || moveVector.x) {
-		// Project the move vector along the look normal
-		addToCameraPos(
-			lookNormal.x * moveVector.y + lookNormal.y * moveVector.x,
-			lookNormal.y * moveVector.y - lookNormal.x * moveVector.x,
-		);
-	}
-}
-
-function onKeyDown(event: KeyboardEvent) {
-	if (mouseDown) {
-		if (event.code == 'KeyW') {
-			moveForward = true;
-		} else if (event.code == 'KeyS') {
-			moveBackward = true;
-		} else if (event.code == 'KeyA') {
-			moveLeft = true;
-		} else if (event.code == 'KeyD') {
-			moveRight = true;
-		} else if (event.code == 'ShiftLeft') {
-			moveRun = true;
-		}
-	}
-}
-
-function onKeyUp(event: KeyboardEvent) {
-	if (event.code == 'KeyW') {
-		moveForward = false;
-	} else if (event.code == 'KeyS') {
-		moveBackward = false;
-	} else if (event.code == 'KeyA') {
-		moveLeft = false;
-	} else if (event.code == 'KeyD') {
-		moveRight = false;
-	} else if (event.code == 'ShiftLeft') {
-		moveRun = false;
-	}
-}
-
-defineExpose({ setCameraPos, setCameraAng, focusCameraOn, render, tick, registerNewObject });
+defineExpose({ cameraController, render, tick, registerNewObject });
 </script>
 
 <style scoped>

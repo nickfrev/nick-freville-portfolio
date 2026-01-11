@@ -82,7 +82,7 @@ function draw() {
 		if (once) {
 			once = false;
 
-			world.value.setCameraPos(0, 0, 800);
+			world.value.cameraController.setCameraPos(0, 0, 800);
 		}
 	}
 }
