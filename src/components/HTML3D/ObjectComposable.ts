@@ -1,6 +1,9 @@
 import { reactive, ref, getCurrentInstance, onMounted } from 'vue';
 import type { ComponentInternalInstance } from 'vue';
 import { Transform } from './Transform';
+import HTML3D from './HTML3D.vue';
+
+export type SceneObject = ReturnType<typeof becomeObject>['objectExposables'];
 
 export const objectProps = {
 	transform: {
@@ -17,34 +20,33 @@ function isCamera(instance: ComponentInternalInstance) {
 
 type objectCallbacks = { tick?: () => void; update?: () => void };
 
+function getWorld(instance: ComponentInternalInstance): InstanceType<typeof HTML3D> {
+	if (!instance.parent) {
+		throw '3D HTML components must exist in an HTML3D component!';
+	}
+
+	if (instance.parent && instance.parent.type.__name === HTML3D.__name) {
+		// Parent is HTML3D component
+		return instance.parent.exposed as InstanceType<typeof HTML3D>;
+	}
+
+	return instance.parent.exposed?.world ?? null;
+}
+
 export function becomeObject(props: { transform: Transform }, callbacks?: objectCallbacks) {
 	const transform = ref(props.transform);
-	// todo: determine if checking for null is a good idea here
 	const instance = getCurrentInstance() as ComponentInternalInstance;
+
+	const world = getWorld(instance);
+
 	const selfIsCamera = isCamera(instance);
-	let childrenComponents: ComponentInternalInstance[] = [];
 
 	onMounted(() => {
-		const parent = instance.parent;
-		if (parent && parent.exposed && 'registerChildComponent' in parent.exposed) {
-			parent.exposed.registerChildComponent(instance);
+		if (!selfIsCamera) {
+			// The Camera is controlled separately due to it's importance to a smooth user experience
+			world.registerNewObject(instance.exposed as SceneObject);
 		}
 	});
-
-	function registerChildComponent(child: ComponentInternalInstance) {
-		if (child.parent === instance) {
-			childrenComponents.push(child);
-		}
-	}
-
-	function tickChildrenComponents() {
-		childrenComponents = childrenComponents.filter((x) => x.parent === instance);
-		for (const child of childrenComponents) {
-			if (child && child.exposed && 'tick' in child.exposed) {
-				child.exposed.tick();
-			}
-		}
-	}
 
 	function getCSS() {
 		if (selfIsCamera) {
@@ -60,12 +62,14 @@ export function becomeObject(props: { transform: Transform }, callbacks?: object
 		callbacks?.update?.();
 	}
 
-	function tick() {
+	function render() {
 		if (transform.value.checkAndClearChangeFlag()) {
 			update();
 		}
+	}
+
+	function tick() {
 		callbacks?.tick?.();
-		tickChildrenComponents();
 	}
 
 	const objectStyle = reactive({
@@ -101,8 +105,9 @@ export function becomeObject(props: { transform: Transform }, callbacks?: object
 		transform,
 		update,
 		localToWorldTransform,
+		render,
 		tick,
-		registerChildComponent,
+		world,
 	};
-	return { objectStyle, objectExposables };
+	return { world, objectStyle, objectExposables };
 }

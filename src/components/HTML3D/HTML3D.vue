@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="cameraSpace"
+		class="viewPort"
 		@mousedown="onMouseDown"
 		@mouseup="onMouseUp"
 		@mousemove="onMouseMove"
@@ -18,6 +18,8 @@
 import { Vector, Transform, Angle } from './Transform';
 import Camera3D from './Camera3D.vue';
 import { useTemplateRef } from 'vue';
+
+import type { SceneObject } from './ObjectComposable.ts';
 
 const camera = useTemplateRef('cameraScene');
 
@@ -122,20 +124,38 @@ function checkForCameraTransformChange() {
 /////
 // Main logic loop for updating
 /////
-let firstTick = true;
-function tick() {
+const sceneObjects = new Map<number, SceneObject>();
+let sceneObjectsCount = 0;
+function registerNewObject(object: SceneObject) {
+	const newId = sceneObjectsCount;
+	sceneObjectsCount++;
+	sceneObjects.set(newId, object);
+}
+
+let firstRender = true;
+function render() {
 	if (!camera.value) {
 		return;
 	}
 
-	if (mouseDown || firstTick || transformBufferChange) {
-		firstTick = false;
+	if (mouseDown || firstRender || transformBufferChange) {
+		firstRender = false;
 		moveTick();
 		checkForCameraTransformChange();
 	}
 
-	// This tick cascades to all children components
-	camera.value.tick();
+	// Tick the camera
+	camera.value.render();
+
+	for (const [key, value] of sceneObjects) {
+		value.render();
+	}
+}
+
+function tick() {
+	for (const [key, value] of sceneObjects) {
+		value.tick();
+	}
 }
 
 /////
@@ -252,7 +272,7 @@ function onKeyUp(event: KeyboardEvent) {
 	}
 }
 
-defineExpose({ camera, setCameraPos, setCameraAng, focusCameraOn, tick });
+defineExpose({ setCameraPos, setCameraAng, focusCameraOn, render, tick, registerNewObject });
 </script>
 
 <style scoped>
@@ -263,7 +283,7 @@ defineExpose({ camera, setCameraPos, setCameraAng, focusCameraOn, tick });
 	color: white;
 	background-color: rgba(0, 0, 0, 0.25);
 }
-.cameraSpace {
+.viewPort {
 	position: absolute;
 	top: 0px;
 	left: 0px;
