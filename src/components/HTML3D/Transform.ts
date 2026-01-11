@@ -58,6 +58,12 @@ export class Transform {
 		this.setAngle(pitch, yaw, roll);
 	}
 
+	static fromMatrix(matrix: DOMMatrix) {
+		const retVal = new Transform();
+		retVal.matrix = DOMMatrix.fromMatrix(matrix);
+		return retVal;
+	}
+
 	checkAndClearChangeFlag() {
 		const retValue = this.hasChanged;
 		this.hasChanged = false;
@@ -165,7 +171,7 @@ export class Transform {
 	}
 
 	getMatrix() {
-		return this.matrix;
+		return DOMMatrix.fromMatrix(this.matrix);
 	}
 
 	getCameraRenderMatrix(perspective: number): DOMMatrix {
@@ -193,6 +199,10 @@ export class Transform {
 
 	getUp() {
 		return new Vector(this.matrix.m31, -this.matrix.m32, this.matrix.m33);
+	}
+
+	getLocal(transform: Transform): Transform {
+		return Transform.fromMatrix(this.matrix.multiply(transform.matrix));
 	}
 
 	// getLookNormal() {

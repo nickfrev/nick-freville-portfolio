@@ -1,5 +1,8 @@
 <template>
-	<div class="plane" :style="{ ...objectStyle, ...divDimensions }">
+	<div
+		:class="{ plane: true, showbackface: showBackface }"
+		:style="{ ...objectStyle, ...divDimensions }"
+	>
 		<slot></slot>
 	</div>
 </template>
@@ -12,11 +15,15 @@ const props = defineProps({
 	...objectProps,
 	width: {
 		type: Number,
-		default: 500,
+		default: 250,
 	},
 	height: {
 		type: Number,
-		default: 500,
+		default: 250,
+	},
+	showBackface: {
+		type: Boolean,
+		default: false,
 	},
 });
 const { objectStyle, objectExposables } = becomeObject(props);

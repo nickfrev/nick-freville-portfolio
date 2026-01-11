@@ -2,6 +2,7 @@ import { reactive, ref, getCurrentInstance, onMounted } from 'vue';
 import type { ComponentInternalInstance } from 'vue';
 import { Transform } from './Transform';
 import HTML3D from './HTML3D.vue';
+import Camera3D from './Camera3D.vue';
 
 export type SceneObject = ReturnType<typeof becomeObject>['objectExposables'];
 
@@ -73,29 +74,26 @@ export function becomeObject(props: { transform: Transform }, callbacks?: object
 		transform: getCSS(),
 	});
 
-	// Helper functions
-	function localToWorldTransform(localTransform: Transform | DOMMatrix) {
-		// const isTransform = localTransform instanceof Transform;
-		// const selfLocal = transform.value
-		// 	.getMatrix()
-		// 	.multiply(isTransform ? localTransform.getMatrix() : localTransform);
-		// const selfLocalTransform = Transform.fromMatrix(selfLocal);
-		// const parent = instance?.parent;
-		// if (!parent) {
-		// 	return selfLocalTransform;
-		// }
-		// if (isCamera(parent)) {
-		// 	return selfLocalTransform;
-		// }
-		// // If the parent has a transform component we can get the transform relative to that
-		// if (
-		// 	parent.exposed &&
-		// 	'transform' in parent.exposed &&
-		// 	'localToWorldTransform' in parent.exposed
-		// ) {
-		// 	return parent.exposed.localToWorldTransform(selfLocal);
-		// }
-		// return selfLocalTransform;
+	function localToWorldTransform(localTransform: Transform, maxDepth: number = 10) {
+		let parent = instance.parent;
+		let childTransform = transform.value.getLocal(localTransform);
+		for (let i = 0; i < maxDepth; i++) {
+			if (
+				parent &&
+				parent.exposed &&
+				'transform' in parent.exposed &&
+				parent.exposed.transform?.value instanceof Transform
+			) {
+				if (parent.type.__name === Camera3D.__name) {
+					break;
+				}
+				childTransform = parent.exposed.transform.value.getLocal(childTransform);
+				parent = parent.parent;
+			} else {
+				break;
+			}
+		}
+		return childTransform;
 	}
 
 	const objectExposables = {
