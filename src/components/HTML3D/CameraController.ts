@@ -5,6 +5,8 @@ export default class CameraController {
 	transformBuffer = new Transform();
 	cameraPositionBuffer = new Vector();
 	cameraAngleBuffer = new Angle();
+	cameraPerspectiveBuffer: number | null = 800;
+	defaultCameraPerspective = 800;
 
 	transformBufferChange = true;
 
@@ -18,6 +20,7 @@ export default class CameraController {
 	};
 
 	lastPos = { x: 0, y: 0 };
+	cameraLocked = false;
 
 	constructor() {
 		this.bindListeners();
@@ -38,7 +41,26 @@ export default class CameraController {
 		document.addEventListener('keyup', this.onKeyUp.bind(this));
 	}
 
+	lockCamera(lock: boolean) {
+		this.cameraLocked = lock;
+	}
+
+	allowMove() {
+		return !this.cameraLocked;
+	}
+
+	setCameraPerspective(value: number | null) {
+		if (!this.allowMove()) {
+			return;
+		}
+		this.transformBufferChange = true;
+		this.cameraPerspectiveBuffer = value;
+	}
+
 	setCameraPos(x: null | number = null, y: null | number = null, z: null | number = null) {
+		if (!this.allowMove()) {
+			return;
+		}
 		this.transformBufferChange = true;
 
 		if (x !== null) {
@@ -53,6 +75,9 @@ export default class CameraController {
 	}
 
 	addToCameraPos(x: null | number = null, y: null | number = null, z: null | number = null) {
+		if (!this.allowMove()) {
+			return;
+		}
 		this.transformBufferChange = true;
 		if (x !== null) {
 			this.cameraPositionBuffer.x += x;
@@ -66,6 +91,9 @@ export default class CameraController {
 	}
 
 	setCameraAng(pitch: null | number = null, yaw: null | number = null, roll: null | number = null) {
+		if (!this.allowMove()) {
+			return;
+		}
 		this.transformBufferChange = true;
 
 		if (pitch !== null) {
@@ -84,6 +112,9 @@ export default class CameraController {
 		yaw: null | number = null,
 		roll: null | number = null,
 	) {
+		if (!this.allowMove()) {
+			return;
+		}
 		this.transformBufferChange = true;
 		if (pitch !== null) {
 			this.cameraAngleBuffer.pitch += pitch;
@@ -121,6 +152,7 @@ export default class CameraController {
 
 			camera.transform.setPosition(this.cameraPositionBuffer);
 			camera.transform.setAngle(this.cameraAngleBuffer);
+			camera.setCameraPerspective(this.cameraPerspectiveBuffer);
 		}
 	}
 
@@ -166,6 +198,10 @@ export default class CameraController {
 			this.lastPos = { x: event.clientX, y: event.clientY };
 			this.addToCameraAng(-diff.y * 0.25, diff.x * 0.25);
 
+			if (this.cameraPerspectiveBuffer === null) {
+				this.setCameraPerspective(this.defaultCameraPerspective);
+			}
+
 			event.stopPropagation();
 			event.preventDefault();
 		}
@@ -181,6 +217,9 @@ export default class CameraController {
 	/////
 
 	moveTick() {
+		if (!this.allowMove()) {
+			return;
+		}
 		const moveVector = new Vector();
 		const speed = 15 * (this.movement.run ? 3 : 1);
 

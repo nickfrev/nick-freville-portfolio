@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 import { objectProps, becomeObject } from './ObjectComposable';
-import { ref, reactive } from 'vue';
+import { watch, reactive } from 'vue';
 
 const props = defineProps({
 	...objectProps,
@@ -29,18 +29,24 @@ const props = defineProps({
 const { objectStyle, objectExposables } = becomeObject(props);
 defineExpose(objectExposables);
 
-const width = ref(props.width);
-const height = ref(props.height);
-
-const offset = objectExposables.transform.value.renderOffset;
-offset.m41 = width.value / 2;
-offset.m42 = -height.value / 2;
-objectExposables.update();
+watch(() => props.width, update);
+watch(() => props.height, update);
 
 const divDimensions = reactive({
-	width: `${width.value}px`,
-	height: `${height.value}px`,
+	width: `${props.width}px`,
+	height: `${props.height}px`,
 });
+
+function update() {
+	const offset = objectExposables.transform.value.renderOffset;
+	offset.m41 = props.width / 2;
+	offset.m42 = -props.height / 2;
+	objectExposables.update();
+
+	divDimensions.width = `${props.width}px`;
+	divDimensions.height = `${props.height}px`;
+}
+update();
 </script>
 
 <style scoped>

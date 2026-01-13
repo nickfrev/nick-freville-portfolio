@@ -76,7 +76,7 @@ export class Transform {
 	}
 
 	getPosition() {
-		return new Vector(this.matrix.m41, this.matrix.m42, this.matrix.m43);
+		return new Vector(this.matrix.m41, -this.matrix.m42, this.matrix.m43);
 	}
 
 	setPositionX(x: number) {
@@ -174,9 +174,9 @@ export class Transform {
 		return DOMMatrix.fromMatrix(this.matrix);
 	}
 
-	getCameraRenderMatrix(perspective: number): DOMMatrix {
+	getCameraRenderMatrix(perspective: number | null): DOMMatrix {
 		const cameraRenderMatrix = this.matrix.inverse();
-		cameraRenderMatrix.m43 += perspective;
+		cameraRenderMatrix.m43 += perspective ?? 0;
 
 		return cameraRenderMatrix;
 	}
@@ -185,7 +185,7 @@ export class Transform {
 		return this.getRenderMatrix().toString();
 	}
 
-	getCameraTransformCSS(perspective: number) {
+	getCameraTransformCSS(perspective: number | null) {
 		return this.getCameraRenderMatrix(perspective).toString();
 	}
 

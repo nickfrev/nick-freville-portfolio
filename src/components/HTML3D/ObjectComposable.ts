@@ -13,6 +13,10 @@ export const objectProps = {
 			return new Transform();
 		},
 	},
+	motionSmoothing: {
+		type: Number,
+		default: 0,
+	},
 };
 
 function isCamera(instance: ComponentInternalInstance) {
@@ -34,13 +38,18 @@ function getWorld(instance: ComponentInternalInstance): InstanceType<typeof HTML
 	return instance.parent.exposed?.world ?? null;
 }
 
-export function becomeObject(props: { transform: Transform }, callbacks?: objectCallbacks) {
+export function becomeObject(
+	props: { transform: Transform; motionSmoothing: number },
+	callbacks?: objectCallbacks,
+) {
 	const transform = ref(props.transform);
+	const motionSmoothing = ref(props.motionSmoothing);
 	const instance = getCurrentInstance() as ComponentInternalInstance;
 
 	const world = getWorld(instance);
 
 	const selfIsCamera = isCamera(instance);
+	let perspective: number | null = 800;
 
 	onMounted(() => {
 		world.registerNewObject(instance.exposed as SceneObject);
@@ -48,8 +57,15 @@ export function becomeObject(props: { transform: Transform }, callbacks?: object
 
 	function getCSS() {
 		if (selfIsCamera) {
-			const perspective = 800;
-			return `perspective(${perspective}px) ` + transform.value.getCameraTransformCSS(perspective);
+			let perspectiveValue = '';
+			if (perspective === null) {
+				perspectiveValue = 'none';
+			} else {
+				perspectiveValue = `${perspective}px`;
+			}
+			return (
+				`perspective(${perspectiveValue}) ` + transform.value.getCameraTransformCSS(perspective)
+			);
 		}
 
 		return transform.value.getTransformCSS();
@@ -57,6 +73,7 @@ export function becomeObject(props: { transform: Transform }, callbacks?: object
 
 	function update() {
 		objectStyle.transform = getCSS();
+		objectStyle.transition = `transform ${motionSmoothing.value}s ease-out`;
 		callbacks?.update?.();
 	}
 
@@ -72,6 +89,7 @@ export function becomeObject(props: { transform: Transform }, callbacks?: object
 
 	const objectStyle = reactive({
 		transform: getCSS(),
+		transition: `transform ${motionSmoothing.value}s ease-out`,
 	});
 
 	function localToWorldTransform(localTransform: Transform, maxDepth: number = 10) {
@@ -96,10 +114,20 @@ export function becomeObject(props: { transform: Transform }, callbacks?: object
 		return childTransform;
 	}
 
+	function setMotionSmoothing(value: number) {
+		motionSmoothing.value = value;
+	}
+
+	function setCameraPerspective(value: number | null) {
+		perspective = value;
+	}
+
 	const objectExposables = {
 		transform,
 		update,
 		localToWorldTransform,
+		setMotionSmoothing,
+		setCameraPerspective,
 		render,
 		tick,
 		world,

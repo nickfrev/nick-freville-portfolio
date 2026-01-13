@@ -1,5 +1,6 @@
 <template>
 	<div
+		ref="viewPort"
 		class="viewPort"
 		@mousedown="cameraController.onMouseDown"
 		@mouseup="cameraController.onMouseUp"
@@ -20,8 +21,10 @@ import Camera3D from './Camera3D.vue';
 import { useTemplateRef } from 'vue';
 
 import type { SceneObject } from './ObjectComposable.ts';
+import type { Angle, Vector } from './Transform.ts';
 
 const camera = useTemplateRef('cameraScene');
+const viewPortElement = useTemplateRef('viewPort');
 const cameraController = new CameraController();
 
 /////
@@ -53,7 +56,40 @@ function tick() {
 	}
 }
 
-defineExpose({ cameraController, render, tick, registerNewObject });
+function getViewportElement() {
+	return viewPortElement.value;
+}
+
+function cineMoveCamera(time: number, position: Vector, angle?: Angle, callback?: () => void) {
+	if (!camera.value) {
+		return;
+	}
+
+	cameraController.setCameraPos(position.x, position.y, position.z);
+	if (angle) {
+		cameraController.setCameraAng(angle.pitch, angle.yaw, angle.roll);
+	}
+	cameraController.lockCamera(true);
+
+	camera.value.setMotionSmoothing(time);
+
+	setTimeout(() => {
+		camera.value?.setMotionSmoothing(0);
+		cameraController.lockCamera(false);
+		if (callback) {
+			callback();
+		}
+	}, 2000);
+}
+
+defineExpose({
+	cameraController,
+	render,
+	tick,
+	registerNewObject,
+	getViewportElement,
+	cineMoveCamera,
+});
 </script>
 
 <style scoped>
