@@ -56,9 +56,9 @@
 		>
 			<template v-slot:back>
 				<div class="cubeUI">
-					This test shows how we can get positions relative to objects in 3D space by using their
-					DOMMatrix. The colored planes show the values of .forward(), .right(), and .up() of the
-					Transform class related to the rotating cube.
+					This test shows how we can DIVs into 3D space by using their DOMMatrix. The colored planes
+					show the values of .forward(), .right(), and .up() of the Transform class related to the
+					rotating cube.
 
 					<br />The below button shows tracking with the localToWorld method.
 					<button @click="toggleTrackPosition">
@@ -146,7 +146,10 @@ function toggleTrackPosition() {
 }
 
 function testLocalToWorld() {
-	const position = movementTest.value?.localToWorldTransform(new Transform(175, 175, 175));
+	const position = movementTest.value?.localToWorldTransform(
+		new Transform(175, 175, 175),
+		objectExposables.instance,
+	);
 	if (position) {
 		testCube.value?.transform.setMatrix(position?.getMatrix());
 	}

@@ -60,12 +60,14 @@ function getViewportElement() {
 	return viewPortElement.value;
 }
 
-function cineMoveCamera(time: number, position: Vector, angle?: Angle, callback?: () => void) {
+function cineMoveCamera(time: number, position?: Vector, angle?: Angle, callback?: () => void) {
 	if (!camera.value) {
 		return;
 	}
 
-	cameraController.setCameraPos(position.x, position.y, position.z);
+	if (position) {
+		cameraController.setCameraPos(position.x, position.y, position.z);
+	}
 	if (angle) {
 		cameraController.setCameraAng(angle.pitch, angle.yaw, angle.roll);
 	}
@@ -79,7 +81,7 @@ function cineMoveCamera(time: number, position: Vector, angle?: Angle, callback?
 		if (callback) {
 			callback();
 		}
-	}, 2000);
+	}, 1000 * time);
 }
 
 defineExpose({

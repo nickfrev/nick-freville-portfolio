@@ -57,6 +57,10 @@ export default class CameraController {
 		this.cameraPerspectiveBuffer = value;
 	}
 
+	getCameraPerspective() {
+		return this.cameraPerspectiveBuffer;
+	}
+
 	setCameraPos(x: null | number = null, y: null | number = null, z: null | number = null) {
 		if (!this.allowMove()) {
 			return;

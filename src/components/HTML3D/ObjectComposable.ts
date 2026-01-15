@@ -92,9 +92,13 @@ export function becomeObject(
 		transition: `transform ${motionSmoothing.value}s ease-out`,
 	});
 
-	function localToWorldTransform(localTransform: Transform, maxDepth: number = 10) {
-		let parent = instance.parent;
+	function localToWorldTransform(
+		localTransform: Transform,
+		stopInstance?: ComponentInternalInstance,
+		maxDepth: number = 10,
+	) {
 		let childTransform = transform.value.getLocal(localTransform);
+		let parent = instance.parent;
 		for (let i = 0; i < maxDepth; i++) {
 			if (
 				parent &&
@@ -102,7 +106,7 @@ export function becomeObject(
 				'transform' in parent.exposed &&
 				parent.exposed.transform?.value instanceof Transform
 			) {
-				if (parent.type.__name === Camera3D.__name) {
+				if (parent.type.__name === Camera3D.__name || parent === stopInstance) {
 					break;
 				}
 				childTransform = parent.exposed.transform.value.getLocal(childTransform);
@@ -131,6 +135,7 @@ export function becomeObject(
 		render,
 		tick,
 		world,
+		instance,
 	};
 	return { world, objectStyle, objectExposables };
 }

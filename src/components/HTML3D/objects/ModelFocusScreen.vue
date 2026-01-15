@@ -44,7 +44,7 @@ const props = defineProps({
 	},
 });
 const { objectStyle, objectExposables } = becomeObject(props);
-defineExpose({ ...objectExposables, focus, unfocus });
+defineExpose({ ...objectExposables, focus, unfocus, isFocused });
 
 onMounted(() => {
 	window.addEventListener('resize', updateDimensions);
@@ -62,7 +62,7 @@ function updateDimensions() {
 	height.value = viewPort.clientHeight + 10;
 }
 
-function focus() {
+function focus(instant: boolean = false) {
 	if (!billboard.value) {
 		return;
 	}
@@ -73,7 +73,7 @@ function focus() {
 	);
 	const position = newPosition.getPosition();
 	cameraController.setCameraPerspective(null);
-	objectExposables.world.cineMoveCamera(2, position, new Angle(90, 180, 0));
+	objectExposables.world.cineMoveCamera(instant ? 0 : 2, position, new Angle(90, 180, 0));
 }
 
 function unfocus(positionOffset?: Vector, angleOffset?: Angle) {
@@ -102,6 +102,10 @@ function unfocus(positionOffset?: Vector, angleOffset?: Angle) {
 		new Angle(90 + angleOffset.pitch, 180 + angleOffset.yaw, 0),
 	);
 }
+
+function isFocused() {
+	return objectExposables.world.cameraController.getCameraPerspective() === null;
+}
 </script>
 
 <style scoped>
@@ -112,5 +116,8 @@ function unfocus(positionOffset?: Vector, angleOffset?: Angle) {
 
 .slotWrapper {
 	padding: 10px;
+	height: 100%;
+
+	overflow: hidden;
 }
 </style>
