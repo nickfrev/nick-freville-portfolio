@@ -6,6 +6,7 @@
 		<div class="audioBox" :style="{ width: `${width}px` }">
 			<audio ref="audioControls"></audio>
 			<input ref="audio_file" type="file" accept="audio/*" />
+			<a href="https://www.youtube.com/watch?v=-mPk58DhDIY">Kevin MacLeod - Winter Chimes</a>
 		</div>
 	</div>
 </template>
