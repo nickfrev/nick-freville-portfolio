@@ -1,5 +1,11 @@
 <template>
 	<div>
+		<div>
+			<button class="floatRight" @click="toggleMusicLock">
+				<span v-if="mouseOverToPlay">Mouse Over To Play</span>
+				<span v-else>Always On</span>
+			</button>
+		</div>
 		<canvas ref="canvas" class="canvas" :width="width" :height="height">
 			Your Browser does not support HTML5
 		</canvas>
@@ -12,13 +18,26 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, useTemplateRef } from 'vue';
+import { onMounted, useTemplateRef, ref } from 'vue';
 import MusicRacer from './src/musicRacer/main.js';
 import song from './src/musicRacer/song.mp3';
 
 const canvas = useTemplateRef('canvas');
 const audioFile = useTemplateRef('audio_file');
 const audioBox = useTemplateRef('audioControls');
+const mouseOverToPlay = ref(true);
+
+let musicRacer: null | MusicRacer = null;
+
+function toggleMusicLock() {
+	musicRacer.mouseOverToPlay = !musicRacer.mouseOverToPlay;
+	mouseOverToPlay.value = musicRacer.mouseOverToPlay;
+	if (!mouseOverToPlay.value) {
+		musicRacer.start();
+	} else {
+		musicRacer.stop();
+	}
+}
 
 defineProps({
 	width: {
@@ -32,7 +51,7 @@ defineProps({
 });
 
 onMounted(() => {
-	new MusicRacer(canvas.value, audioFile.value, audioBox.value, song);
+	musicRacer = new MusicRacer(canvas.value, audioFile.value, audioBox.value, song);
 });
 </script>
 
@@ -49,5 +68,10 @@ canvas {
 
 .audioBox a {
 	float: right;
+}
+
+.floatRight {
+	float: right;
+	margin-right: 0px;
 }
 </style>

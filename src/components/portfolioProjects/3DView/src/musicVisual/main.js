@@ -20,6 +20,8 @@ export default class MusicVisualizer {
 
 		this.curWave = 0;
 
+		this.mouseOverToPlay = true;
+
 		this.canvas = canvas;
 		this.ctx = this.canvas.getContext('2d');
 
@@ -33,6 +35,13 @@ export default class MusicVisualizer {
 		this.audio.controls = true;
 		this.audio.loop = true;
 		this.audio.autoplay = false;
+
+		audioFile.addEventListener('change', () => {
+			let files = audioFile.files;
+			let file = URL.createObjectURL(files[0]);
+			this.audio.src = file;
+			this.audio.play();
+		});
 
 		this.initMp3Player();
 
@@ -91,11 +100,15 @@ export default class MusicVisualizer {
 
 	bindEventListeners() {
 		this.canvas.addEventListener('mouseenter', () => {
-			this.start();
+			if (this.mouseOverToPlay) {
+				this.start();
+			}
 		});
 
 		this.canvas.addEventListener('mouseleave', () => {
-			this.stop();
+			if (this.mouseOverToPlay) {
+				this.stop();
+			}
 		});
 
 		this.canvas.addEventListener(
@@ -282,7 +295,7 @@ export default class MusicVisualizer {
 		this.ctx.fillStyle = 'rgb(255,0,0)';
 		this.getAudioData();
 
-		if (!this.running) {
+		if (!this.running && this.mouseOverToPlay) {
 			this.ctx.fillStyle = 'rgba(0,0,0, 0.7)';
 			this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 			this.ctx.fillStyle = 'rgb(255,255,255)';

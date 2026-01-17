@@ -32,6 +32,8 @@ export default class MusicRacer {
 		this.curWave = 0;
 		this.display = [];
 
+		this.mouseOverToPlay = true;
+
 		this.thrustHeight = 10;
 
 		this.isStarted = false;
@@ -57,9 +59,10 @@ export default class MusicRacer {
 
 		//add load file ability
 		audioFile.addEventListener('change', () => {
-			let files = this.files;
+			let files = audioFile.files;
 			let file = URL.createObjectURL(files[0]);
 			this.audio.src = file;
+			this.audio.play();
 		});
 		// audioBox.appendChild(this.audio);
 		this.initMp3Player();
@@ -115,22 +118,6 @@ export default class MusicRacer {
 				tmpObj.mesh.edges[1] = new Edge(1, 2);
 				tmpObj.mesh.edges[2] = new Edge(2, 3);
 				tmpObj.mesh.edges[3] = new Edge(3, 0);
-				if (false) {
-					tmpObj.mesh.verts[4] = new Vert(0, 0, 0);
-					tmpObj.mesh.verts[5] = new Vert(0, this.scale, 0);
-					tmpObj.mesh.verts[6] = new Vert(this.scale, this.scale, 0);
-					tmpObj.mesh.verts[7] = new Vert(this.scale, 0, 0);
-
-					tmpObj.mesh.edges[4] = new Edge(4, 5);
-					tmpObj.mesh.edges[5] = new Edge(5, 6);
-					tmpObj.mesh.edges[6] = new Edge(6, 7);
-					tmpObj.mesh.edges[7] = new Edge(7, 4);
-
-					tmpObj.mesh.edges[8] = new Edge(4, 0);
-					tmpObj.mesh.edges[9] = new Edge(5, 1);
-					tmpObj.mesh.edges[10] = new Edge(6, 2);
-					tmpObj.mesh.edges[11] = new Edge(7, 3);
-				}
 				tmpObj.pos.x = x * (this.scale + 0);
 				tmpObj.pos.y = y * (this.scale + 0);
 				tmpObj.pos.z = 0;
@@ -243,11 +230,15 @@ export default class MusicRacer {
 
 	bindListeners() {
 		this.canvas.addEventListener('mouseenter', () => {
-			this.start();
+			if (this.mouseOverToPlay) {
+				this.start();
+			}
 		});
 
 		this.canvas.addEventListener('mouseleave', () => {
-			this.stop();
+			if (this.mouseOverToPlay) {
+				this.stop();
+			}
 		});
 
 		document.addEventListener(
@@ -400,7 +391,7 @@ export default class MusicRacer {
 	}
 
 	editHeight(inVal) {
-		return Math.pow(inVal / 30, 5) / 8;
+		return Math.pow(inVal / 30, 5) / 3;
 	}
 
 	getAudioData() {
