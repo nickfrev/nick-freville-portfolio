@@ -1,7 +1,7 @@
 <template>
 	<div class="flexCol">
 		<div class="flexRow">
-			<canvas ref="canvas" :width="width" :height="height"
+			<canvas ref="canvas" class="canvas" :width="width" :height="height"
 				>Your Browser does not support HTML5</canvas
 			>
 		</div>
@@ -56,6 +56,10 @@ function decreaseCount() {
 
 <style scoped>
 @import '../global.css';
+
+.canvas {
+	box-shadow: 0px 0px 2px var(--outline-color);
+}
 
 .flexCol {
 	display: flex;

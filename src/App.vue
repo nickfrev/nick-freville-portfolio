@@ -2,7 +2,7 @@
 	<HTML3D ref="world">
 		<DebugCube :transform="new Transform(1400, 1600, 0, 0, 90, 0)"> </DebugCube>
 		<ModelFocusScreen ref="billboard" :transform="new Transform(0, 0, 600, 0, 0, 0)">
-			<GridCarousel> </GridCarousel>
+			<PortfolioCarousel> </PortfolioCarousel>
 		</ModelFocusScreen>
 		<ModelSign
 			ref="FunSign"
@@ -49,8 +49,7 @@ import ModelFocusScreen from './components/HTML3D/objects/ModelFocusScreen.vue';
 import ModelSign from './components/HTML3D/objects/ModelSign.vue';
 import { useTemplateRef, onMounted, ref } from 'vue';
 import { Transform, Vector, Angle } from './components/HTML3D/Transform';
-import ParticleSimulation from './components/portfolioProjects/ParticleSimulation/ParticleSimulation.vue';
-import GridCarousel from './components/portfolioProjects/GridCarousel.vue';
+import PortfolioCarousel from './components/portfolioProjects/PortfolioCarousel.vue';
 
 const world = useTemplateRef('world');
 const billboard = useTemplateRef('billboard');
@@ -112,7 +111,9 @@ function moveBack() {
 }
 </script>
 
-<style scoped>
+<style>
+@import './theme.css';
+
 .signTitle {
 	text-decoration: underline;
 	font-size: 1.5rem;
@@ -126,8 +127,8 @@ function moveBack() {
 	text-align: center;
 }
 .signButton button {
-	background-color: #13aa52;
-	border: 1px solid #13aa52;
+	background-color: var(--accent-color);
+	border: 1px solid var(--accent-color);
 	box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px 0;
 	box-sizing: border-box;
 	color: #fff;

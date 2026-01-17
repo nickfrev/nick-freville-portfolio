@@ -1,5 +1,4 @@
 <template>
-	{{ currentIndex }}
 	<div class="center">
 		<button :class="{ tabButtons: true, hide: currentIndex <= 0 }" @click="scrollRight">
 			&lt;
@@ -22,11 +21,11 @@
 					<div
 						v-for="item in gridItems[currentIndex + i - 3]?.items"
 						:key="item?.id"
-						class="flexItem"
+						:class="{ flexItem: true, empty: item?.id === undefined }"
 					>
-						<div class="tile" v-if="item?.id !== undefined">
-							<img src="../../assets/curSim.png" />
-							{{ item?.title }}
+						<div class="tile" v-if="item?.id !== undefined" @click="emitClick(item.value)">
+							<div class="imgContainer"><img :src="item.image" /></div>
+							<span>{{ item?.title }}</span>
 						</div>
 					</div>
 				</div>
@@ -45,46 +44,37 @@
 import { ref } from 'vue';
 import type { Ref } from 'vue';
 
-type item = { id?: number; title: string };
-type itemGroup = { id?: number; items: (item | null)[] };
+class Item {
+	id?: number;
+	title: string = '';
+	value: string = '';
+	image: string = '';
+}
+
+const props = defineProps({
+	items: {
+		type: Array<Item>,
+		default: () => [],
+	},
+});
+
+// type item = { id?: number; title: string };
+type itemGroup = { id?: number; items: (Item | null)[] };
 
 const itemsPerPage = 9;
 
-const items: item[] = [
-	{ title: 'test1' },
-	{ title: 'test2' },
-	{ title: 'test3' },
-	{ title: 'test4' },
-	{ title: 'test5' },
-	{ title: 'test6' },
-	{ title: 'test7' },
-	{ title: 'test8' },
-	{ title: 'test9' },
-	{ title: 'test10' },
-	{ title: 'test11' },
-	{ title: 'test12' },
-	{ title: 'test13' },
-	{ title: 'test14' },
-	{ title: 'test15' },
-	{ title: 'test16' },
-	{ title: 'test17' },
-	{ title: 'test18' },
-	{ title: 'test19' },
-	{ title: 'test20' },
-	{ title: 'test21' },
-	{ title: 'test22' },
-	{ title: 'test23' },
-	{ title: 'test24' },
-	{ title: 'test25' },
-	{ title: 'test26' },
-	{ title: 'test27' },
-	{ title: 'test28' },
-	{ title: 'test29' },
-];
+const items: Item[] = props.items;
+
 const gridItems: Ref<itemGroup[]> = ref([]);
 const currentIndex: Ref<number> = ref(0);
 const scrollLeftFlag: Ref<boolean> = ref(false);
 const scrollRightFlag: Ref<boolean> = ref(false);
+
+const emit = defineEmits(['click']);
+
+function emitClick(title: string) {
+	emit('click', title);
+}
 
 function scrollLeft() {
 	if (currentIndex.value >= Math.floor(items.length / itemsPerPage)) {
@@ -116,7 +106,7 @@ function scrollRight() {
 
 function update() {
 	for (let i = 0; i < items.length; i++) {
-		const currentItem = items[i] as item;
+		const currentItem = items[i] as Item;
 		const gridItemsGroup = Math.floor(i / itemsPerPage);
 		const gridIndex = i % itemsPerPage;
 
@@ -277,11 +267,14 @@ update();
 	width: 256px;
 	aspect-ratio: 1.62;
 	color: white;
+
+	border-radius: 5px;
+
+	border: solid 2px var(--outline-color);
 }
 
-.flexItem img {
-	float: left;
-	width: 100%;
+.flexItem.empty {
+	visibility: hidden;
 }
 
 .tabButtons {
@@ -307,23 +300,44 @@ update();
 	position: relative;
 	cursor: pointer;
 	opacity: 0.6;
-	transition: opacity 0.2s ease-out;
+	transition: opacity 0.2s;
 
 	width: 100%;
 	height: 100%;
 	text-align: center;
 }
 
+.tile > span {
+	display: inline-block;
+	position: relative;
+	font-size: 1.5rem;
+	z-index: 99;
+	background-color: rgba(0, 0, 0, 0.8);
+	padding: 3px 6px;
+	margin: 10px 10px;
+}
+
 .tile:hover {
 	opacity: 1;
 }
 
-.tile img {
+.tile .imgContainer {
 	position: absolute;
 	top: 0px;
 	bottom: 0px;
 	left: 0px;
 	right: 0px;
-	z-index: -1;
+	z-index: 1;
+	width: 100%;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	background-color: black;
+}
+
+.imgContainer img {
+	width: 100%;
 }
 </style>
