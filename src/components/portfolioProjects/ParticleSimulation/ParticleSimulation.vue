@@ -9,6 +9,7 @@
 			<button @click="decreaseCount">-</button>
 			<span class="displayValue">{{ spawnCount }}</span>
 			<button @click="increaseCount">+</button>
+			<button @click="toggleTrails">{{ trails ? 'Remove Trails' : 'Add Trails' }}</button>
 		</div>
 	</div>
 </template>
@@ -19,6 +20,7 @@ import PowderEngine from './src/main.js';
 
 const canvas = useTemplateRef('canvas');
 const spawnCount = ref(2);
+const trails = ref(true);
 let engine: null | PowderEngine = null;
 
 defineProps({
@@ -51,6 +53,11 @@ function decreaseCount() {
 		spawnCount.value = 0;
 	}
 	engine.spawnCount = spawnCount.value;
+}
+
+function toggleTrails() {
+	trails.value = !trails.value;
+	engine.world.trails = trails.value;
 }
 </script>
 

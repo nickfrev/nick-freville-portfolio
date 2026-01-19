@@ -1,0 +1,417 @@
+<!doctype html>
+<html>
+	<head>
+		<title>404: Page Not Found</title>
+		<style>
+			body {
+				margin: 0 0;
+				padding: 0px;
+				width: 100%;
+				overflow: hidden;
+			}
+
+			#mp3_player {
+				position: absolute;
+				top: 0px;
+				right: 0px;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="myCanvas" width="578" height="200"></canvas>
+		<div id="mp3_player">
+			<div id="audio_box"></div>
+		</div>
+		<script>
+			window.onload = init;
+
+			var arx = [];
+			var ary = [];
+			var velX = [];
+			var velY = [];
+			var dis = [];
+
+			var num = 200;
+			var cur = 10;
+			var maxVel = 10;
+
+			var grav = 200;
+
+			//for scoring
+			var sheild = 50;
+			var playing = true;
+			var score = 0.0;
+			var eaten = 0;
+			var power = 0;
+			var paused = true;
+
+			//used for keypresses
+			var keyVelY = 0;
+			var keyVelX = 0;
+
+			var SPosX, SPosY;
+			var tailX = [];
+			var tailY = [];
+			var tailLen = 5;
+
+			var plyX = 100,
+				plyY = 100,
+				vel = 20;
+			var intervalID;
+
+			function mouseMove(e) {
+				var mouseX, mouseY;
+				var diffX, diffY, dist;
+				if (e.offsetX) {
+					mouseX = e.offsetX;
+					mouseY = e.offsetY;
+				} else if (e.layerX) {
+					mouseX = e.layerX;
+					mouseY = e.layerY;
+				}
+				diffX = plyX - mouseX;
+				diffY = plyY - mouseY;
+				dist = Math.sqrt(diffX * diffX + diffY * diffY);
+				if (
+					playing &&
+					mouseX < canvas.width &&
+					mouseY < canvas.height &&
+					mouseX > 0 &&
+					mouseY > 0
+				) {
+					SPosX = mouseX;
+					SPosY = mouseY;
+					if (diffX != 0 || diffY != 0) {
+						plyX = SPosX + (diffX / dist) * sheild;
+						plyY = SPosY + (diffY / dist) * sheild;
+					}
+				}
+			}
+
+			window.addEventListener(
+				'mousemove',
+				function (evt) {
+					if (!paused) {
+						mouseMove(evt);
+					}
+				},
+				false,
+			);
+
+			window.addEventListener(
+				'keydown',
+				function (event) {
+					switch (event.keyCode) {
+						case 27: //esc
+							if (playing == false) {
+								playing = true;
+								score = 0.0;
+								eaten = 0;
+								power = 0;
+								SPosX = -10;
+								SPosY = -10;
+								init();
+							} else {
+								paused = !paused;
+								if (paused) {
+									audio.pause();
+								} else {
+									audio.play();
+								}
+							}
+							break;
+
+						case 37: // Left
+							keyVelX = vel;
+							break;
+
+						case 38: // Up
+							keyVelY = -vel;
+							break;
+
+						case 39: // Right
+							keyVelX = -vel;
+							break;
+
+						case 40: // Down
+							keyVelY = vel;
+							break;
+					}
+				},
+				false,
+			);
+
+			window.addEventListener(
+				'keyup',
+				function (event) {
+					switch (event.keyCode) {
+						/*case 32: //Spacebar
+       plyY = (plyY+vel);
+     break;*/
+
+						case 37: // Left
+							keyVelX = 0;
+							break;
+
+						case 38: // Up
+							keyVelY = 0;
+							break;
+
+						case 39: // Right
+							keyVelX = 0;
+							break;
+
+						case 40: // Down
+							keyVelY = 0;
+							break;
+					}
+				},
+				false,
+			);
+
+			function print() {
+				var R, G, B, tmp;
+				for (var i = 0; i < cur; i++) {
+					tmp = Math.floor(255 - (dis[i] * dis[i]) / 500);
+					R = 0;
+					G = tmp;
+					B = tmp;
+					context.fillStyle = 'rgb(' + R + ',' + G + ',' + B + ')';
+					context.fillRect(arx[i], ary[i], 5, 5);
+				}
+			}
+
+			function sign(x) {
+				return x > 0 ? 1 : x < 0 ? -1 : 0;
+			}
+
+			function updatePos() {
+				var mX = plyX; //window.event.clientX;
+				var mY = plyY; //window.event.clientY;
+				var diffX, diffY, forX, forY, dist;
+				for (var i = 0; i < cur; i++) {
+					diffX = arx[i] - SPosX;
+					diffY = ary[i] - SPosY;
+					dist = Math.sqrt(diffX * diffX + diffY * diffY);
+					if (dist < 12 && playing) {
+						arx[i] = Math.random() * canvas.width;
+						ary[i] = Math.random() * canvas.height;
+						velX[i] = 0;
+						velY[i] = 0;
+						if (sheild < 50) {
+							sheild += 1;
+							eaten++;
+							power++;
+							if (power >= 10) {
+								power = 0;
+								//add a powerup
+							}
+						}
+					}
+
+					diffX = arx[i] - mX;
+					diffY = ary[i] - mY;
+
+					dist = Math.sqrt(diffX * diffX + diffY * diffY);
+					dis[i] = dist;
+
+					forX = (sign(diffX) * grav) / (dist * dist);
+					forY = (sign(diffY) * grav) / (dist * dist);
+					velX[i] += forX;
+					velY[i] += forY;
+					if (dist > sheild) {
+						arx[i] = arx[i] - velX[i];
+						ary[i] = ary[i] - velY[i];
+					} else {
+						arx[i] = plyX + diffX * 1.25;
+						ary[i] = plyY + diffY * 1.25;
+						velX[i] = -diffX;
+						velY[i] = -diffY;
+						sheild -= 3;
+						if (sheild < 10) {
+							playing = false;
+						}
+					}
+
+					if (velX[i] < -maxVel) {
+						velX[i] = -maxVel;
+					} else if (velX[i] > maxVel) {
+						velX[i] = maxVel;
+					}
+
+					if (velY[i] < -maxVel) {
+						velY[i] = -maxVel;
+					} else if (velY[i] > maxVel) {
+						velY[i] = maxVel;
+					}
+
+					if (arx[i] < 0) {
+						arx[i] = canvas.width;
+					} else if (arx[i] > canvas.width) {
+						arx[i] = 0;
+					}
+					if (ary[i] < 0) {
+						ary[i] = canvas.height;
+					} else if (ary[i] > canvas.height) {
+						ary[i] = 0;
+					}
+				}
+			}
+
+			function drawPly() {
+				/*
+	if (plyX < -7) {
+		plyX = canvas.width-7;
+	} else if (plyX > canvas.width-7) {
+		plyX = 0;
+	}
+	if (plyY < -7) {
+		plyY = canvas.height-7;
+	} else if (plyY > canvas.height-7) {
+		plyY = 0;
+	}
+	*/
+				//draw shild
+				context.strokeStyle = 'rgb(0,255,255)';
+				context.beginPath();
+				context.arc(plyX, plyY, sheild, 0, 2 * Math.PI);
+				context.stroke();
+				var diffX, diffY;
+				tailX[0] = plyX;
+				tailY[0] = plyY;
+				context.strokeStyle = 'rgb(0,155,155)';
+				for (var q = 1; q < tailLen + 1; q++) {
+					if (sheild - 10 * q > 0) {
+						diffX = tailX[q] - tailX[q - 1];
+						diffY = tailY[q] - tailY[q - 1];
+						dist = Math.sqrt(diffX * diffX + diffY * diffY);
+
+						tailX[q] = tailX[q - 1] + (diffX / dist) * (sheild - 10 * q);
+						tailY[q] = tailY[q - 1] + (diffY / dist) * (sheild - 10 * q);
+
+						context.beginPath();
+						context.arc(tailX[q], tailY[q], sheild - 10 * q, 0, 2 * Math.PI);
+						context.stroke();
+					}
+				}
+
+				context.fillStyle = 'rgb(0,255,255)';
+				context.beginPath();
+				context.arc(plyX, plyY, 10, 0, 2 * Math.PI);
+				context.fill();
+				if (playing) {
+					context.fillStyle = 'rgb(0,255,155)';
+					context.beginPath();
+					context.arc(SPosX, SPosY, 10, 0, 2 * Math.PI);
+					context.fill();
+				}
+			}
+
+			function addScore() {
+				if (playing && !paused) {
+					score += 0.1;
+					if (score / 100 + 30 < num) {
+						cur = Math.floor(score / 100 + 30);
+					}
+					grav = score * 3;
+				}
+				context.fillStyle = 'rgb(255,255,255)';
+				context.font = '20px Arial';
+				context.fillText('Score: ' + Math.floor(score * 10), 10, 20);
+				context.fillText('Eaten: ' + Math.floor(eaten), 10, 40);
+				context.font = '40px Arial';
+				context.fillText('404', canvas.width / 2 - 40, 40);
+
+				if (!playing) {
+					context.fillText('GAME OVER', canvas.width / 2 - 120, canvas.height / 2 - 40);
+					context.font = '10px Arial';
+					context.fillText('Press ESC to replay.', canvas.width / 2 - 40, canvas.height / 2 - 20);
+				} else if (paused) {
+					context.fillText('PAUSED', canvas.width / 2 - 70, canvas.height / 2 - 40);
+					context.font = '10px Arial';
+					context.fillText('Press ESC to unpause.', canvas.width / 2 - 40, canvas.height / 2 - 20);
+				}
+				context.font = '10px Arial';
+				context.fillText('Music by: Greg Rowley', 10, canvas.height - 40);
+				context.fillText('Music Title: Steeper - Green Beat', 10, canvas.height - 30);
+				context.fillText('Game  by: Nicholas Freville', 10, canvas.height - 20);
+			}
+
+			function draw() {
+				//mouseMove(e)
+				context.fillStyle = 'rgb(0,0,0)';
+
+				//Draw a filled rectangle the size of the width and height of the canvas
+				context.fillRect(0, 0, canvas.width, canvas.height);
+				context.fillStyle = 'rgb(255,255,255)';
+				if (!paused) {
+					updatePos();
+				}
+				print();
+				drawPly();
+				addScore();
+			}
+
+			function init() {
+				//Grab the Canvas tag from index.html
+				canvas = document.getElementById('myCanvas');
+				//Create an interface for interacting with canvas in 2D
+				context = canvas.getContext('2d');
+
+				//Set the dimensions of the canvas to match the broser window
+				//Note that global.css helps make this possible
+				canvas.width = window.innerWidth;
+				canvas.height = window.innerHeight;
+
+				//Erase the contents of the canvas
+				context.clearRect(0, 0, canvas.width, canvas.height);
+
+				//Set the color of all vector drawings to black
+				context.fillStyle = 'rgb(0,20,25)';
+
+				//Draw a filled rectangle the size of the width and height of the canvas
+				context.fillRect(0, 0, canvas.width, canvas.height);
+				context.fillStyle = 'rgb(255,255,255)';
+
+				plyX = canvas.width / 2;
+				plyY = canvas.height / 2;
+				sheild = 15;
+				for (var i = 0; i < num; i++) {
+					arx[i] = Math.random() * canvas.width;
+					ary[i] = Math.random() * canvas.height;
+					velX[i] = 0;
+					velY[i] = 0;
+				}
+				for (var q = 0; q < tailLen; q++) {
+					tailX[q] = 0;
+					tailY[q] = 0;
+				}
+				updatePos();
+				print();
+				clearInterval(intervalID);
+				intervalID = setInterval(draw, 1000 / 30);
+			}
+
+			// Create a new instance of an audio object and adjust some of its properties
+			var audio = new Audio();
+			audio.src = 'Steeper - Green Beat.mp3';
+			audio.controls = true;
+			audio.loop = true;
+			audio.autoplay = false;
+			audio.volume = 0.1;
+			// Establish all variables that your Analyser will use
+			var source, context, analyser;
+
+			function initMp3Player() {
+				document.getElementById('audio_box').appendChild(audio);
+				context = new AudioContext(); // AudioContext object instance
+				analyser = context.createAnalyser(); // AnalyserNode method
+				// Re-route audio playback into the processing graph of the AudioContext
+				source = context.createMediaElementSource(audio);
+				source.connect(analyser);
+				analyser.connect(context.destination);
+			}
+			initMp3Player();
+		</script>
+	</body>
+</html>

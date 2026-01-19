@@ -1,0 +1,130 @@
+window.onload = init;
+
+nodes = [];
+data = [];
+
+var width;
+var height;
+//Trippy
+/*
+//edit these for funzies
+seeds = 10000;//ammount of things that move around
+res = 1;//how close they get to eachother
+border = 5;//how far away from the edge they try to go (chages based on res)
+fill = 15;//How "full" the screen will get (lower is less)
+speed = 2;//how fast they go from place to place
+alpha = 0.01;//from 0 to 1 of how much alpha each particle has
+*/
+//edit these for funzies
+seeds = 5000;//ammount of things that move around
+res = 1;//how close they get to eachother
+border = 5;//how far away from the edge they try to go (chages based on res)
+fill = 15;//How "full" the screen will get (lower is less)
+speed = 2;//how fast they go from place to place
+alpha = 0.01;//from 0 to 1 of how much alpha each particle has
+//the order in chaos
+function sign(x) {
+	if (x > 0) {
+		return 1;
+	} else {
+		return -1;
+	}
+}
+
+function editNode(num, inx, iny) {
+	var tmpx, tmpy;
+	if (Math.random() > 0.5) {
+		tmpx = 0;
+	} else {
+		tmpx = sign(Math.random()-0.5);
+	}
+	if (Math.random() > 0.5) {
+		tmpy = 0;
+	} else {
+		tmpy = sign(Math.random()-0.5);
+	}
+	
+	if (inx+tmpx < border) {
+		tmpx = 1;
+	}
+	if (inx+tmpx > width-border) {
+		tmpx = -1;
+	}
+	if (iny+tmpy < border) {
+		tmpy = 1;
+	}
+	if (iny+tmpy > height-border) {
+		tmpy = -1;
+	}
+	
+	if (data[inx+tmpx][iny+tmpy] < fill) {
+		data[inx+tmpx][iny+tmpy]++;
+		nodes[num] = {x:inx,y:iny,dirx:tmpx,diry:tmpy,time:speed,alive:true};
+	} else {
+		nodes[num] = {x:inx,y:iny,dirx:tmpx,diry:tmpy,time:speed,alive:false};
+	}
+	return true;
+}
+
+function run() {
+	var curNode;
+	var x, y;
+	context.strokeStyle = "rgba(255,255,255,"+alpha+")";
+	for (var i = 0; i < nodes.length; i++) {
+		curNode = nodes[i];
+		if (nodes[i].alive) {
+			context.beginPath();
+			x = curNode.x+(curNode.dirx/speed)*(speed-curNode.time);
+			y = curNode.y+(curNode.diry/speed)*(speed-curNode.time);
+			nodes[i].time--;
+			context.arc(x*res, y*res,3,0,2*Math.PI);
+			context.stroke();
+			if (nodes[i].time < 0) {
+				editNode(i, x, y)
+			}
+		}
+	}
+}
+
+function init() {
+	//Grab the Canvas tag from index.html
+	canvas = document.getElementById('canvas');
+	//Create an interface for interacting with canvas in 2D
+	context = canvas.getContext('2d');
+
+	//Set the dimensions of the canvas to match the broser window
+	//Note that global.css helps make this possible
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+
+	//Erase the contents of the canvas
+	context.clearRect(0, 0, canvas.width, canvas.height);
+
+	//Set the color of all vector drawings to black
+	context.fillStyle = "rgb(0,0,0)";
+
+	//Draw a filled rectangle the size of the width and height of the canvas
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	context.fillStyle = "rgb(255,255,255)";
+	
+	width = Math.floor(canvas.width/res);
+	height = Math.floor(canvas.height/res);
+	for (var x = 0; x < width; x++) {
+		data[x] = [];
+		for (var y = 0; y < height; y++) {
+			data[x][y] = 0;
+		}
+	}
+	
+	var tx,ty;
+	while (seeds > 0) {
+		tx = Math.floor(Math.random()*width);
+		ty = Math.floor(Math.random()*height);
+		if (data[tx][ty] == 0) {
+			seeds--;
+			data[tx][ty] = 1;
+			editNode(nodes.length,tx,ty); 
+		}
+	}
+	intervalID = setInterval(run, 1000/60);
+}

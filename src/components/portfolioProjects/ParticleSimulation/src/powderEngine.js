@@ -251,6 +251,8 @@ export class port {
 		this.wMatrix = [];
 		this.drawCol = 'rgb(255,100,255)';
 
+		this.trails = true;
+
 		this.setDisp(inRect, inWidth, inHeight);
 	}
 
@@ -309,7 +311,7 @@ export class port {
 	}
 
 	clearDraw() {
-		this.ctx.lineWidth = 3;
+		this.ctx.lineWidth = this.trails ? 1 : 3;
 		let cur;
 		let tmpLen = min(this.clearQueue.length, this.maxDraw);
 		this.ctx.beginPath();

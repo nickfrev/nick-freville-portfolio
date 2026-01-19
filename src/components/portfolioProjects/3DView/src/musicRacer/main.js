@@ -391,7 +391,7 @@ export default class MusicRacer {
 	}
 
 	editHeight(inVal) {
-		return Math.pow(inVal / 30, 5) / 3;
+		return Math.pow(inVal / 30, 5) / 6;
 	}
 
 	getAudioData() {
@@ -405,7 +405,7 @@ export default class MusicRacer {
 		let audioVolume = 0.8 + 0.2 * this.audio.volume;
 		for (let i = 1; i < bars - 1; i++) {
 			const bar_x = this.square * 3 - i * 3;
-			const bar_height = fbc_array[i] / 2 / audioVolume;
+			const bar_height = fbc_array[i] / audioVolume / 2;
 			this.display[this.curWave][i] = this.editHeight(bar_height);
 			this.ctx.fillRect(bar_x, 50, bar_width, -this.display[this.curWave][i] / 3);
 		}

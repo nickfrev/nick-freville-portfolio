@@ -1,0 +1,130 @@
+<!-- http://api.jquery.com/html/ -->
+<!-- Hello,
+	If you are looking at this then that means that you either like to code
+	or you are looking for little hacks, either way welcome to the guts of
+	my little project. I just wanted to warn you before you dig in, this code
+	is extreemly sloppy. Pieces were added as I thought them up and nothing
+	really follows how I grouped it. This code is like a web of variables and
+	functions strewn with no care in the world. Hopefully you find this note 
+	before your quest into the depths of the great open source.
+	Nicholas Freville
+-->
+<html>
+	<head>
+		<title>Curtain Sim 2013 </title>
+		<!--<script type="text/javascript" src="../../../comInclude.js"></script>-->
+		<link href="global.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="main.js"></script>
+		<script type="text/javascript" src="fabric.js"></script>
+		<script type="text/javascript" src="background.js"></script>
+		<script type="text/javascript" src="savDat.js"></script>
+		
+		<script type="text/javascript" src="jquery.js"></script>    
+		<script type="text/javascript" src="menu.js"></script>
+		
+	</head>
+	<!--<div id = "canvas" style="width:100%; height:100%; background: -webkit-canvas(curSim2013); position: absolute;"></div>-->
+	<body>
+		<div id="menu">
+		<header class="title">Curtain Simulator 2013</header>
+		<span class="lil_title">The curtains are alive.</span>
+		<hr> 
+		Press <b>ESC</b> to toggle menu.
+		
+		<div id="levelOptions">
+			<header>Current Level</header> 
+			<article id="curGameName">Abstract</article>
+			<button id="options_but" class="button bigrounded">Level Options</button>
+				<div id="optionsDropDown" class="dropDown initiallyHidden" style="height: 50%;">
+				</br>
+				<button id="clean_but" class="button bigrounded">Reset Level</button>
+				<button id="disNodes_but" class="button bigrounded">Disable Nodes</button>
+				<button id="disMusic_but" class="button bigrounded">Disable Music</button>
+				</div>
+		</div>
+		<hr>
+		<button id="levels_but" class="button bigrounded">Levels</button>
+			<div id="levelDropDown" class="dropDown initiallyHidden">
+			hello.
+			</div>
+		<!--
+		<button id="CustomLevel_but" class="button bigrounded">Custom Level</button>
+			<div id="customDropDown" class="dropDown initiallyHidden">
+				<header>Curtain Dimensions:</header>
+				<table>
+				<tr><td width="120">Height:</td><td> <input type="number" name="inHeight" class="numberInput"></td></tr>
+				<tr><td>Width:</td><td> <input type="number" name="inWidth" class="numberInput"></td></tr>
+				<tr><td>Top Left Coord:</td><td colspan="2"> (<input type="number" name="dsa" class="numberInput">
+				, <input type="number" name="sadgf" class="numberInput">)</td></tr>
+				<tr><td>Node Spacing:</td><td> <input type="number" name="inSpace" class="numberInput"></td></tr>
+				<tr><td>Node Size:</td><td> <input type="number" name="inSize" class="numberInput"></td></tr>
+				<tr><td>Draw Nodes:</td><td> <input type="checkbox" name="inDrawNodes"></td></tr>
+				<tr><td>Draw Edges:</td><td> <input type="checkbox" name="inDrawEdges"></td></tr>
+				</table>
+				<hr>
+				<header>Curtain Color:</header>
+				<table>
+				<tr><td width="120">Gradient Dividors:</td><td> <input type="number" name="inSpace" class="numberInput"></td></tr>
+				<tr><td>Draw Horizontal:</td><td> <input type="checkbox" name="inDrawEdges"></td></tr>
+				<tr><td colspan="2">Color1: <input type="number" name="inSize" class="numberInput"><input type="number" name="inSize" class="numberInput"><input type="number" name="inSize" class="numberInput"><input type="number" name="inSize" class="numberInput"><input type="number" name="inSize" class="numberInput"> </td></tr>
+				
+				</table>
+				<hr>
+				<header>Wind Power:</header>
+				<table>
+				<tr><td width="120">Wind Size:</td><td> <input type="number" name="inSpace" class="numberInput"></td></tr>
+				<tr><td>Wind Strength:</td><td> <input type="number" name="inSize" class="numberInput"></td></tr>
+				</table>
+				<hr>
+				<header>Click Power:</header>
+				<table>
+				<tr><td width="120">Click Force:</td><td> <input type="number" name="inSpace" class="numberInput"></td></tr>
+				</table>
+				<hr>
+				<header>Images:</header>
+				<table>
+				<tr><td width="120">Background Image:</td><td> imgur.com/<input type="text" name="inSpace" class="numberInput"></td></tr>
+				<tr><td width="120">Foreground Image:</td><td> imgur.com/<input type="text" name="inSpace" class="numberInput"></td></tr>
+				</table>
+				
+			</div>
+		-->
+		<button id="Controls_but" class="button bigrounded">Controls</button>
+			<div id="controlsDropDown" class="dropDown initiallyHidden">
+			<header>Wind:</header>
+				<article>
+				To use the wind power, drag your mouse over the curtain. The direction and magnitude of the mouse movement correlates to the force applied to the curtain.
+				</article>
+			<header>Tool:</header>
+				<article>
+				To use the tool provided by the level, you left click on your mouse. The tool can do many different things so be sure to experiment with it.
+				</article>
+			<hr>
+			<header>Quick Keys:</header>
+				<article>
+				Quick keys allow you to bypass some options of using this menu.
+				</article>
+			<header>R:</header>
+				<article>
+				Restart the curtain.
+				</article>
+			<header>T:</header>
+				<article>
+				Toggles the "Nodes".
+				</article>
+			<header>Up Arrow:</header>
+				<article>
+				Proceed to thre next level.
+				</article>
+			<header>Down Arrow:</header>
+				<article>
+				Return to the previous level.
+				</article>
+			</div>		
+		</div>
+		<canvas id="canvas">
+			Your Browser does not support HTML5		</canvas>
+	
+	</body>
+	
+</html>

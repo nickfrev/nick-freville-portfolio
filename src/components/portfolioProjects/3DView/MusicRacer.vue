@@ -12,7 +12,8 @@
 		<div class="audioBox" :style="{ width: `${width}px` }">
 			<audio ref="audioControls"></audio>
 			<input ref="audio_file" type="file" accept="audio/*" />
-			<a href="https://www.youtube.com/watch?v=GDgCao2tkyg">Isaac Miell - Dial up modem remix</a>
+			<!-- <a href="https://www.youtube.com/watch?v=GDgCao2tkyg">Isaac Miell - Dial up modem remix</a> -->
+			<a href="https://youtu.be/I3xA8RSgv58?si=oVD5sS_ATS1oYpVo">colorcolorcolor - Earth Ox</a>
 		</div>
 	</div>
 </template>
@@ -20,7 +21,7 @@
 <script setup lang="ts">
 import { onMounted, useTemplateRef, ref } from 'vue';
 import MusicRacer from './src/musicRacer/main.js';
-import song from './src/musicRacer/song.mp3';
+import song from './src/musicRacer/colorcolorcolor - electritribe - earth ox.mp3';
 
 const canvas = useTemplateRef('canvas');
 const audioFile = useTemplateRef('audio_file');

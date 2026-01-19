@@ -1,0 +1,278 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+  	<title>HEEEEP</title>
+    <style>
+      body {
+        margin: 0 0;
+        padding: 0px;
+        width: 100%;
+        overflow: hidden;
+      }
+
+    </style>
+  </head>
+  <body>
+  
+    <canvas id="myCanvas" width="578" height="200"></canvas>
+    <script>
+	
+window.onload = init;
+
+part = [];
+line = [];
+curLine = 0;
+nodes = 200;
+function sign(x) {
+	if (x > 0) {
+		return 1;
+	} else {
+		return -1;
+	}
+}
+
+function isBet(x,y,z) {
+	if (x < y && x > z) {
+		return true;
+	}
+	if (x > y && x < z) {
+		return true;
+	}
+	return false;
+}
+
+function getCol(parti) {
+	var lineTmp;
+	var distTo, distOf;
+	var x,y;
+	var x1,y1;
+	var tarx, tary;
+	for (var i = 0; i < curLine; i++) {
+		//don't check it's line
+		if (i != parti.lineNum) {
+			tarx = parti.posx+parti.dirx*5;
+			tary = parti.posy+parti.diry*5;
+			
+			lineTmp = line[i];
+			//get distance from point
+			x = lineTmp.x1-tarx;
+			y = lineTmp.y1-tary;
+			distTo = Math.sqrt(x*x+y*y);
+			//get length of line
+			
+			if (lineTmp.dist == -1) {
+				x = lineTmp.x1-lineTmp.x2;
+				y = lineTmp.y1-lineTmp.y2;
+				distOf = Math.sqrt(x*x+y*y);
+			} else {
+				distOf = lineTmp.dist;
+			}
+			//if it too far away don't bother
+			if (distTo < distOf) {
+				//get the point on the line closest to the point
+				x = lineTmp.x1+distTo*lineTmp.slope.x;
+				y = lineTmp.y1+distTo*lineTmp.slope.y;
+				
+				x1 = x-tarx;
+				y1 = y-tary;
+				
+				if (Math.sqrt(x1*x1+y1*y1) < 10) {
+					
+					return true;
+				}
+			}
+		}
+	}
+	
+	return false;
+}
+
+function drawLines() {
+	for (var i = 0; i < curLine; i++) {
+		context.strokeStyle = "rgb(0,0,255)";
+		context.beginPath();
+		context.moveTo(line[i].x1,line[i].y1);
+		context.lineTo(line[i].x2,line[i].y2);
+		context.stroke();
+	}
+}
+
+/*
+function getCol(parti) {
+	var lineTmp;
+	for (var i = 0; i < curLine; i++) {
+		if (i != parti.lineNum) {
+			lineTmp = line[i];
+			if ((lineTmp.slope.x != 0 && parti.dirx != 0) && (lineTmp.slope.y != 0 && parti.diry != 0)) {
+			
+			} else {
+				//up and down
+				if (lineTmp.slope.x != 0 && lineTmp.slope.y == 0) {
+					if (isBet(lineTmp.y1,parti.posy,parti.posy+parti.diry*25)) {
+						return true;
+					}
+				} else if (lineTmp.slope.x == 0 && lineTmp.slope.y != 0) {
+					if (isBet(lineTmp.x1,parti.posx,parti.posx+parti.dirx*25)) {
+						return true;
+					}
+					
+				}
+			}
+		}
+	}
+	
+	return false;
+}
+function getCol(parti) {
+	var P = {x:parti.posx,y:parti.posy};
+	var Q = {x:parti.posx+parti.dirx,y:parti.posy+parti.diry};
+	var slope1 = (P.y-Q.y)/(P.x-Q.x);
+	var b1 = -(slope1*parti.posx-parti.posy);
+	var b2 = -1;
+	var slope2 = -1;
+	var E, F;
+	var inter = {x:-1,y:-1};
+	for (var i = 0; i < curLine; i++) {
+		E = {x:line[i].x1,y:line[i].y1};
+		F = {x:line[i].x2,y:line[i].y2};
+		slope2 = (E.y-F.y)/(E.x-F.x);
+		if (slope1 != slope2) {
+			b2 = -(slope1*line[i].x1-line[i].y1);
+			inter.x = (b2-b1)/(slope1-slope2);
+			inter.y = slope1*inter.x+b1;
+			
+			context.strokeStyle = "rgb(255,0,0)";
+			context.beginPath();
+			context.arc(10, b2,3,0,2*Math.PI);
+			context.stroke();
+			if (isBet(inter.x,line[i].x1,line[i].x2)) {
+				//inter.y = slope1*inter.x+b1;
+				//if (isBet(inter.y,line[i].y1,line[i].y2)) {
+					return true;
+				//}
+			}
+		}
+	}
+	
+	return false;
+}
+*/
+function run() {
+	var lasX, lasY;
+	//context.fillStyle = "rgba(0,0,0,1)";
+	//context.fillRect(0, 0, canvas.width, canvas.height);
+	for (var i = 0; i < nodes; i++) {
+		if (part[i].lives > 0) {
+			if (part[i].posx < 0) {
+				part[i].posx = 0;
+				part[i].tick = 0;
+			}
+			if (part[i].posy < 0) {
+				part[i].posy = 0;
+				part[i].tick = 0
+			}
+			if (part[i].posx > canvas.width) {
+				part[i].posx = canvas.width;
+				part[i].tick = 0
+			}
+			if (part[i].posy > canvas.height) {
+				part[i].posy = canvas.height;
+				part[i].tick = 0
+			}
+			
+			
+			if (part[i].tick <= 0 || getCol(part[i])) {
+				part[i].tick = 100;
+				lasX = part[i].dirx;
+				lasY = part[i].diry;
+				if (Math.random() > 0.5) {
+					if (Math.random() > 0.5) {
+						part[i].dirx = sign(Math.random()-0.5);
+					} else {
+						part[i].dirx = 0;
+					}
+				} else {
+					if (Math.random() > 0.5) {
+						part[i].diry = sign(Math.random()-0.5);
+					} else {
+						part[i].diry = 0;
+					}
+				}
+				
+				//end line and start a new one if it changes direction
+				if ((lasX != part[i].dirx || lasY != part[i].diry) && (part[i].diry != 0 || part[i].dirx != 0)) {
+					part[i].lives--;
+					context.strokeStyle = "rgb(0,0,255)";
+					context.beginPath();
+					context.moveTo(line[part[i].lineNum].x1,line[part[i].lineNum].y1);
+					context.lineTo(line[part[i].lineNum].x2,line[part[i].lineNum].y2);
+					context.stroke();
+				
+					curLine++;
+					part[i].lineNum = curLine-1;
+					line[part[i].lineNum] = {x1:-1,y1:-1,x2:-1,y2:-1,slope:{x:0,y:0},dist:-1};
+				}
+				
+			} else {
+				if (line[part[i].lineNum].x1 == -1) {
+					line[part[i].lineNum].x1 = part[i].posx;
+					line[part[i].lineNum].y1 = part[i].posy;
+					line[part[i].lineNum].slope.x = part[i].dirx;
+					line[part[i].lineNum].slope.y = part[i].diry;
+				}
+				part[i].tick = part[i].tick-1;
+				part[i].posx += part[i].dirx;
+				part[i].posy += part[i].diry;
+				
+				line[part[i].lineNum].x2 = part[i].posx;
+				line[part[i].lineNum].y2 = part[i].posy;
+				
+				context.strokeStyle = part[i].col;
+				context.beginPath();
+				context.arc(part[i].posx, part[i].posy,3,0,2*Math.PI);
+				context.stroke();
+			}
+		}
+	}
+}
+
+function init() {
+	//Grab the Canvas tag from index.html
+	canvas = document.getElementById('myCanvas');
+	//Create an interface for interacting with canvas in 2D
+	context = canvas.getContext('2d');
+
+	//Set the dimensions of the canvas to match the broser window
+	//Note that global.css helps make this possible
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+
+	//Erase the contents of the canvas
+	context.clearRect(0, 0, canvas.width, canvas.height);
+
+	//Set the color of all vector drawings to black
+	context.fillStyle = "rgb(0,0,0)";
+
+	//Draw a filled rectangle the size of the width and height of the canvas
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	context.fillStyle = "rgb(255,255,255)";
+	
+	for (var i = 0; i < nodes; i++) {
+		part[i] = {col:"rgba(0,200,255,0.15)",//"rgba("+Math.floor(Math.random()*255)+","+Math.floor(Math.random()*255)+","+Math.floor(Math.random()*255)+",1)",
+					posx : canvas.width*Math.random(),
+					posy : canvas.height*Math.random(),
+					dirx : 0,
+					diry : 0,
+					tick : 0,//Math.random()*100,
+					lineNum:i,
+					lives:20}
+		line[i] = {x1:-1,y1:-1,x2:-1,y2:-1,slope:{x:0,y:0},dist:-1}
+		curLine++;
+	}
+	
+	intervalID = setInterval(run, 1000/30);
+}
+	
+	</script>
+  </body>
+</html>

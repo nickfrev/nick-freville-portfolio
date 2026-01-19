@@ -56,9 +56,9 @@
 		>
 			<template v-slot:back>
 				<div class="cubeUI">
-					This test shows how we can DIVs into 3D space by using their DOMMatrix. The colored planes
-					show the values of .forward(), .right(), and .up() of the Transform class related to the
-					rotating cube.
+					This test shows how we can project DIVs into 3D space by using their DOMMatrix. The
+					colored planes show the values of .forward(), .right(), and .up() of the Transform class
+					related to the rotating cube.
 
 					<br />The below button shows tracking with the localToWorld method.
 					<button @click="toggleTrackPosition">
