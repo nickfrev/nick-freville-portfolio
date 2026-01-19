@@ -1,6 +1,6 @@
 import { reactive, ref, getCurrentInstance, onMounted } from 'vue';
 import type { ComponentInternalInstance } from 'vue';
-import { Transform } from './Transform';
+import { Transform, Vector } from './Transform';
 import HTML3D from './HTML3D.vue';
 import Camera3D from './Camera3D.vue';
 
@@ -52,12 +52,22 @@ export function becomeObject(
 	//	sense to cull based on object not face
 	const isCullable = false; // Do we calculate culling on this object
 	let isVisible = true; // Has this object been culled
+	let visibleBounds: Vector[] = [];
 
 	const selfIsCamera = isCamera(instance);
 	let perspective: number | null = 800;
 
 	onMounted(() => {
 		world.registerNewObject(instance.exposed as SceneObject);
+		const parent = instance.parent;
+		if (
+			parent &&
+			parent.type.__name !== Camera3D.__name &&
+			parent.exposed &&
+			'registerVisibleBounds' in parent.exposed
+		) {
+			parent.exposed.registerVisibleBounds(visibleBounds);
+		}
 	});
 
 	function getCSSTransformMatrix() {
@@ -74,6 +84,10 @@ export function becomeObject(
 		}
 
 		return transform.value.getTransformCSS();
+	}
+
+	function registerVisibleBounds(childBounds: Vector[]) {
+		visibleBounds = visibleBounds.concat(childBounds);
 	}
 
 	function checkCull() {
@@ -159,6 +173,7 @@ export function becomeObject(
 		tick,
 		world,
 		instance,
+		registerVisibleBounds,
 	};
 	return { world, objectStyle, objectExposables };
 }
