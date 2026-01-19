@@ -20,7 +20,7 @@ export const objectProps = {
 };
 
 function isCamera(instance: ComponentInternalInstance) {
-	return instance.type.__name === 'Camera3D';
+	return instance.type.__name === Camera3D.__name;
 }
 
 type objectCallbacks = { tick?: () => void; update?: () => void };
@@ -48,6 +48,11 @@ export function becomeObject(
 
 	const world = getWorld(instance);
 
+	// We could cull each div3D by itself, but for my purposes it makes more
+	//	sense to cull based on object not face
+	const isCullable = false; // Do we calculate culling on this object
+	let isVisible = true; // Has this object been culled
+
 	const selfIsCamera = isCamera(instance);
 	let perspective: number | null = 800;
 
@@ -55,7 +60,7 @@ export function becomeObject(
 		world.registerNewObject(instance.exposed as SceneObject);
 	});
 
-	function getCSS() {
+	function getCSSTransformMatrix() {
 		if (selfIsCamera) {
 			let perspectiveValue = '';
 			if (perspective === null) {
@@ -71,14 +76,32 @@ export function becomeObject(
 		return transform.value.getTransformCSS();
 	}
 
+	function checkCull() {
+		// Check if this object can be culled
+		isVisible = true;
+		return false;
+	}
+
 	function update() {
-		objectStyle.transform = getCSS();
+		objectStyle.transform = getCSSTransformMatrix();
 		objectStyle.transition = `transform ${motionSmoothing.value}s ease-out`;
+		if (!isVisible) {
+			objectStyle.display = 'none';
+		}
 		callbacks?.update?.();
 	}
 
 	function render() {
+		let needUpdate = false;
 		if (transform.value.checkAndClearChangeFlag()) {
+			needUpdate = true;
+		}
+
+		if (isCullable) {
+			needUpdate = checkCull();
+		}
+
+		if (needUpdate) {
 			update();
 		}
 	}
@@ -87,8 +110,8 @@ export function becomeObject(
 		callbacks?.tick?.();
 	}
 
-	const objectStyle = reactive({
-		transform: getCSS(),
+	const objectStyle = reactive<{ transform: string; transition: string; display?: string }>({
+		transform: getCSSTransformMatrix(),
 		transition: `transform ${motionSmoothing.value}s ease-out`,
 	});
 
