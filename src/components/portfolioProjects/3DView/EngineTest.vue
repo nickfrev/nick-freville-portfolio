@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { onMounted, useTemplateRef } from 'vue';
+// @ts-ignore
 import EngineTest from './src/3dEngineTest/main.js';
 
 const canvas = useTemplateRef('canvas');

@@ -12,6 +12,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
 import Terminal from './Terminal/src/index.html';
 
 import PatchIFrameLoader from './PatchIFrameLoader.vue';

@@ -15,6 +15,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
 import PowderGame from './PowderGame/src/index.html';
 
 import PatchIFrameLoader from './PatchIFrameLoader.vue';

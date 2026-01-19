@@ -13,6 +13,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
 import VectorField from './VectorField/src/index.html';
 
 import PatchIFrameLoader from './PatchIFrameLoader.vue';

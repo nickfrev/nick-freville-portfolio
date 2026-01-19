@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
 import { onMounted, useTemplateRef, ref } from 'vue';
+// @ts-ignore
 import PowderEngine from './src/main.js';
 
 const canvas = useTemplateRef('canvas');

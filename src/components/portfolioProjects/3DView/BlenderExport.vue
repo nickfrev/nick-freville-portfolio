@@ -5,7 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, useTemplateRef, ref } from 'vue';
+import { onMounted, useTemplateRef } from 'vue';
+// @ts-ignore
 import BlenderExport from './src/blenderExport/main.js';
 
 const canvas = useTemplateRef('canvas');

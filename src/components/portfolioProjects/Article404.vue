@@ -25,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
 import Game404 from './404/src/404.html';
 
 import PatchIFrameLoader from './PatchIFrameLoader.vue';

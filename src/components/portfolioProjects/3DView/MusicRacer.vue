@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import { onMounted, useTemplateRef, ref } from 'vue';
+// @ts-ignore
 import MusicRacer from './src/musicRacer/main.js';
 import song from './src/musicRacer/colorcolorcolor - electritribe - earth ox.mp3';
 

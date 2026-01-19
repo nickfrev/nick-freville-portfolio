@@ -19,6 +19,7 @@
 
 <script setup lang="ts">
 import { onMounted, useTemplateRef, ref } from 'vue';
+// @ts-ignore
 import MusicVisualizer from './src/musicVisual/main.js';
 import song from './src/musicVisual/song.mp3';
 

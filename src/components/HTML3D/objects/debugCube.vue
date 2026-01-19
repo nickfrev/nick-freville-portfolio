@@ -1,6 +1,6 @@
 <template>
 	<div class="object" :style="objectStyle">
-		<ModelCube ref="movementTest" :transform="new Transform(0, 0, 800, 0, 0, 0)">
+		<ModelCube ref="movementTest" :transform="new Transform(0, 0, 600, 0, 0, 0)">
 			<template v-slot:right>
 				<div style="width: 100%; height: 100%; text-align: center; line-height: 250px">RIGHT</div>
 			</template>
@@ -46,10 +46,10 @@
 			style="background-color: rgba(50, 50, 255, 0.25)"
 		></Div3D>
 
-		<ModelCube :transform="new Transform(0, 0, 250)" :width="500" :height="250" :length="500">
+		<ModelCube :transform="new Transform(0, 0, 125)" :width="500" :height="250" :length="500">
 		</ModelCube>
 		<ModelCube
-			:transform="new Transform(0, -200, 325, -45)"
+			:transform="new Transform(0, -200, 200, -45)"
 			:width="300"
 			:height="250"
 			:length="150"
@@ -114,7 +114,7 @@ function tick() {
 
 	// Update axis followers
 	const camTran = movementTest.value.transform;
-	const height = 800;
+	const height = 600;
 	if (forward.value) {
 		const forTran = forward.value.transform;
 		const forwardVec = camTran.getForward();

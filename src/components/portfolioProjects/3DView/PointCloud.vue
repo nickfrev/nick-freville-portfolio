@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { onMounted, useTemplateRef } from 'vue';
+// @ts-ignore
 import PointCloud from './src/pointCloud/main.js';
 
 const canvas = useTemplateRef('canvas');

@@ -134,7 +134,7 @@ class node {
 		const cur = Math.round(7 * Math.random());
 
 		for (let q = 0; q < this.cCnt; q++) {
-			if (!check(this.pos, this.choice[(q + cur) % this.cCnt])) {
+			if (!check(this.pos, this.choice[(q + cur) % this.cCnt] ?? { x: 0, y: 0 })) {
 				return this.choice[(q + cur) % this.cCnt] ?? { x: 0, y: 0 };
 			}
 		}

@@ -5,6 +5,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
 import CurtainSimulatorHTML from './src/index.html';
 </script>
 
