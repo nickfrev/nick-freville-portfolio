@@ -1,6 +1,6 @@
 <template>
 	<div class="object" :style="objectStyle">
-		<ModelRoom ref="room" :width="roomWidth" :length="roomLength"></ModelRoom>
+		<ModelRoom ref="room" :width="roomWidth" :height="roomHeight" :length="roomLength"></ModelRoom>
 		<ModelFocusScreen ref="billboard" :transform="new Transform(0, 0, 600, 0, 0, 0)">
 			<PortfolioCarousel> </PortfolioCarousel>
 		</ModelFocusScreen>
@@ -45,6 +45,8 @@ const room = useTemplateRef('room');
 const isFocused = ref(true);
 const roomWidth = ref(1000);
 const roomWidthPadding = 1000;
+const roomHeight = ref(1000);
+const roomHeightPadding = 500;
 const roomLength = ref(3000);
 
 const props = defineProps({
@@ -83,6 +85,7 @@ function updateResize() {
 			return;
 		}
 		roomWidth.value = viewPort.clientWidth + roomWidthPadding;
+		roomHeight.value = viewPort.clientHeight + roomHeightPadding;
 		// width.value = viewPort.clientWidth + 10; // Add padding to give some leeway with how the plane is placed
 		// height.value = viewPort.clientHeight + 10;
 		return true;

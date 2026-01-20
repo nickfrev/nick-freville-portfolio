@@ -1,9 +1,14 @@
 <template>
-	<CurtainSimulator class="curtain"></CurtainSimulator>
+	<PatchIFrameLoader
+		:src="CurtainSimulator"
+		style="width: 900px; height: 600px"
+	></PatchIFrameLoader>
+	<a :href="CurtainSimulator">Show Full Screen</a>
 </template>
 
 <script setup lang="ts">
-import CurtainSimulator from './CurtainSimulator/CurtainSimulator.vue';
+import CurtainSimulator from '/portfolioProjects/CurtainSimulator/src/index.html?url';
+import PatchIFrameLoader from './PatchIFrameLoader.vue';
 </script>
 
 <style scoped>

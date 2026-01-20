@@ -198,7 +198,10 @@ function handleClick(title: string) {
 }
 
 function closeModal() {
-	modal.value?.hidePopover();
+	if (modal.value) {
+		modal.value.scrollTop = 0;
+		modal.value.hidePopover();
+	}
 }
 
 function consumeRightClick(evt: MouseEvent) {

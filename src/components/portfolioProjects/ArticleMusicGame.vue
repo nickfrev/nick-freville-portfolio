@@ -29,8 +29,7 @@
 </template>
 
 <script setup lang="ts">
-// @ts-ignore
-import MusicGame from './MusicGame/src/index.html';
+import MusicGame from '/portfolioProjects/MusicGame/src/index.html?url';
 
 import PatchIFrameLoader from './PatchIFrameLoader.vue';
 </script>

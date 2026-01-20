@@ -13,8 +13,7 @@
 </template>
 
 <script setup lang="ts">
-// @ts-ignore
-import MazeGenerator from './MazeGenerator/src/index.html';
+import MazeGenerator from '/portfolioProjects/MazeGenerator/src/index.html?url';
 
 import PatchIFrameLoader from './PatchIFrameLoader.vue';
 </script>

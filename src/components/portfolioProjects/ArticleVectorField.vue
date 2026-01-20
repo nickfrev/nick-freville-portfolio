@@ -13,8 +13,7 @@
 </template>
 
 <script setup lang="ts">
-// @ts-ignore
-import VectorField from './VectorField/src/index.html';
+import VectorField from '/portfolioProjects/VectorField/src/index.html?url';
 
 import PatchIFrameLoader from './PatchIFrameLoader.vue';
 </script>
